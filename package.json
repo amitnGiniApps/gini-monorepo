@@ -1,0 +1,25 @@
+{
+  "name": "gini-monorepo",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "install:front": "npm i --workspace=@gini-monorepo/frontend",
+    "install:backend": "npm i --workspace=@gini-monorepo/backend",
+    "install:backend:dev": "npm i -D --workspace=@gini-monorepo/backend",
+    "start:front": "npm start --workspace=@gini-monorepo/frontend",
+    "start:front-skip-login": "npm run --workspace=@gini-monorepo/frontend start:skip-login",
+    "start:backend": "npm start --workspace=@gini-monorepo/backend",
+    "dev:backend": "cd packages/backend && npm run dev",
+    "start:project": "npm run start:front & npm run dev:backend"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "typescript": "^5.6.3"
+  }
+}
