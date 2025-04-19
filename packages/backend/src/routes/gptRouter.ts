@@ -1,9 +1,9 @@
 import express from 'express';
+import { generateProjectController } from '../controllers/gptController';
 
 const router = express.Router();
 
-router.route('/onboarding').post(() => {});
-router.route('/recipe').post(() => {});
+router.route('/generate').post(generateProjectController);
 
 export default router;
 
