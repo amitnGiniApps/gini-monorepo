@@ -34,3 +34,7 @@
 
 #
 .__mf__temp
+
+# misc
+/package-lock.json
+**/package-lock.json
