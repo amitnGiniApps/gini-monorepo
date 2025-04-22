@@ -3,9 +3,13 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Music Player</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <title>Music Player + Gallery</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
     <style>
+        * {
+            box-sizing: border-box;
+        }
+
         body {
             margin: 0;
             padding: 0;
@@ -15,42 +19,161 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
-            flex-direction: column;
-            color: white;
+            overflow: hidden;
         }
-        .player-container {
-            width: 300px;
+
+        body::before {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(60deg, #3a0ca3, #7209b7, #f72585, #4361ee, #4cc9f0);
+            background-size: 400% 400%;
+            animation: gradientShift 20s ease infinite;
+            z-index: -1;
+            opacity: 0.2;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .player-container,
+        .gallery-section {
+            width: 320px;
+            height: 60vh;
             background: linear-gradient(to bottom, #2e004d, #000);
             border-radius: 20px;
             padding: 20px;
             text-align: center;
             box-shadow: 0 0 20px rgba(255, 0, 255, 0.3);
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
         }
+
+        .top-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .top-title {
+            font-weight: bold;
+            font-size: 1rem;
+            text-align: center;
+            flex: 1;
+            color: white;
+        }
+
+        .top-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.4rem;
+            padding: 5px 10px;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .top-btn:hover {
+            transform: scale(1.1);
+        }
+
         .album-art {
             width: 100%;
             border-radius: 20px;
         }
+
         .song-title {
             font-size: 1.2rem;
             margin: 15px 0 5px;
+            color: white;
         }
+
         .artist-name {
             font-size: 0.9rem;
             color: #ccc;
             margin-bottom: 15px;
         }
-        .time {
+
+        .boxContainer {
             display: flex;
             justify-content: space-between;
-            font-size: 0.8rem;
-            margin: 5px 0;
+            height: 64px;
+            --boxSize: 8px;
+            --gutter: 4px;
+            width: 100%;
+            margin-top: 20px;
         }
+
+        .box {
+            transform: scaleY(.4);
+            height: 100%;
+            width: var(--boxSize);
+            background: #a855f7;
+            animation-duration: 1.2s;
+            animation-timing-function: ease-in-out;
+            animation-iteration-count: infinite;
+            border-radius: 8px;
+        }
+
+        .box:nth-child(4n+1) { animation-name: quiet; }
+        .box:nth-child(4n+2) { animation-name: normal; }
+        .box:nth-child(4n+3) { animation-name: loud; }
+        .box:nth-child(4n)   { animation-name: quiet; }
+
+        @keyframes quiet {
+            25% { transform: scaleY(.3); }
+            50% { transform: scaleY(.2); }
+            75% { transform: scaleY(.4); }
+        }
+
+        @keyframes normal {
+            25% { transform: scaleY(.6); }
+            50% { transform: scaleY(.3); }
+            75% { transform: scaleY(.5); }
+        }
+
+        @keyframes loud {
+            25% { transform: scaleY(1); }
+            50% { transform: scaleY(.4); }
+            75% { transform: scaleY(1.2); }
+        }
+
+        .quiet-animation {
+            animation-name: null !important;
+            animation-fill-mode: forwards;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #555;
+            border-radius: 3px;
+            margin: 10px 0;
+            cursor: pointer;
+        }
+
+        .progress-filled {
+            height: 100%;
+            background: #a855f7;
+            width: 0%;
+            border-radius: 3px;
+        }
+
         .controls {
             display: flex;
             justify-content: space-around;
             align-items: center;
-            margin-top: 15px;
+            margin-top: 10px;
         }
+
         .control-btn {
             background: none;
             border: none;
@@ -58,6 +181,7 @@
             font-size: 1.5rem;
             cursor: pointer;
         }
+
         .play-button {
             background: #a855f7;
             width: 50px;
@@ -70,86 +194,243 @@
             box-shadow: 0 0 15px #a855f7;
             color: white;
         }
-        .volume-control {
-            margin-top: 10px;
-        }
-        .volume-control input {
-            width: 100%;
-        }
-        .progress-bar {
-            width: 100%;
-            height: 6px;
-            background: #555;
-            border-radius: 3px;
-            cursor: pointer;
-            margin: 10px 0;
-            position: relative;
-        }
-        .progress-filled {
-            height: 100%;
-            background: #a855f7;
-            border-radius: 3px;
-            width: 0%;
-        }
-        .boxContainer {
+
+        .time {
             display: flex;
             justify-content: space-between;
-            height: 64px;
-            --boxSize: 8px;
-            --gutter: 4px;
+            font-size: 0.8rem;
+            color: white;
+
+        }
+
+        /* Tabs */
+        .tab-menu {
+            display: flex;
+            justify-content: space-around;
+            margin: 15px 0;
+            border-bottom: 1px solid #444;
+        }
+
+        .tab {
+            padding: 8px 0;
+            font-size: 0.9rem;
+            color: #aaa;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .tab.active {
+            color: white;
+        }
+
+        .tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
             width: 100%;
+            height: 2px;
+            background: #4cc9f0;
+        }
+
+        /* Gallery cards */
+        .scrolling-gallery {
+            display: flex;
+            gap: 15px;
+            overflow-x: auto;
+            padding: 10px 0;
+            scroll-snap-type: x mandatory;
+        }
+
+        .scrolling-gallery::-webkit-scrollbar {
+            height: 0px;
+        }
+
+        .album-card {
+            scroll-snap-align: start;
+            min-width: 140px;
+            background: #1c1c1e;
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .album-card:hover {
+            transform: scale(1.03);
+        }
+
+        .album-card img {
+            width: 100%;
+            display: block;
+        }
+
+        .info {
+            padding: 10px;
+            font-size: 0.8rem;
+            text-align: left;
+            color: white;
+        }
+
+        .play-icon {
+            position: absolute;
+            right: 10px;
+            bottom: 50px;
+            font-size: 1.8rem;
+            color: #a855f7;
+        }
+        /* Playlist section */
+        .playlist-section {
             margin-top: 20px;
         }
-        .box {
-            transform: scaleY(.4);
-            height: 100%;
-            width: var(--boxSize);
-            background: #a855f7;
-            animation-duration: 1.2s;
-            animation-timing-function: ease-in-out;
-            animation-iteration-count: infinite;
-            border-radius: 8px;
-        }
-        .box:nth-child(4n+1) { animation-name: quiet; }
-        .box:nth-child(4n+2) { animation-name: normal; }
-        .box:nth-child(4n+3) { animation-name: loud; }
-        .box:nth-child(4n)   { animation-name: quiet; }
 
-        @keyframes quiet {
-            25% { transform: scaleY(.3); }
-            50% { transform: scaleY(.2); }
-            75% { transform: scaleY(.4); }
+        .playlist-item {
+            display: flex;
+            color: white;
+            text-align: left;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #333;
         }
-        @keyframes normal {
-            25% { transform: scaleY(.6); }
-            50% { transform: scaleY(.3); }
-            75% { transform: scaleY(.5); }
+
+        .playlist-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
-        @keyframes loud {
-            25% { transform: scaleY(1); }
-            50% { transform: scaleY(.4); }
-            75% { transform: scaleY(1.2); }
+
+        .playlist-title {
+            font-size: 0.9rem;
+        }
+
+        .playlist-time {
+            font-size: 0.85rem;
+            color: #ccc;
+        }
+
+        .heart-icon {
+            font-size: 1.1rem;
+            color: #777;
+            cursor: pointer;
         }
     </style>
 </head>
 <body>
-<div class="player-container">
+
+<!-- Music Player Section -->
+<div class="player-container" id="player-section">
+    <div class="top-bar">
+        <button class="top-btn" onclick="goBack()"><i class="bi bi-chevron-left"></i></button>
+        <div class="top-title">Now Playing</div>
+        <button class="top-btn"><i class="bi bi-three-dots-vertical"></i></button>
+    </div>
     <img class="album-art" src="https://upload.wikimedia.org/wikipedia/en/b/b7/NirvanaNevermindalbumcover.jpg" alt="Album Art">
     <div class="song-title">Smells Like Teen Spirit</div>
     <div class="artist-name">Nirvana</div>
     <div class="boxContainer" id="boxContainer"></div>
-    <audio id="audio" src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" controls style="display: none"></audio>
-<!--    <div class="time">-->
-<!--        <span id="current-time">0:00</span>-->
-<!--        <span id="duration">0:00</span>-->
-<!--    </div>-->
-<!--    <div class="progress-bar" onclick="seek(event)">-->
-<!--        <div id="progress-filled" class="progress-filled"></div>-->
-<!--    </div>-->
+    <audio id="audio" src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" style="display: none;"></audio>
+    <div class="time">
+        <span id="current-time">0:00</span>
+        <span id="duration">0:00</span>
+    </div>
+    <div class="progress-bar" onclick="seek(event)">
+        <div id="progress-filled" class="progress-filled"></div>
+    </div>
     <div class="controls">
         <button class="control-btn" onclick="skip(-10)"><i class="bi bi-skip-start-fill"></i></button>
         <div class="play-button" onclick="togglePlay()"><i id="play-icon" class="bi bi-play-fill"></i></div>
         <button class="control-btn" onclick="skip(10)"><i class="bi bi-skip-end-fill"></i></button>
+    </div>
+</div>
+
+<!-- Gallery Section -->
+<div class="gallery-section" id="gallery-section" style="display: none;">
+    <div class="top-bar">
+        <button class="top-btn"><i class="bi bi-search"></i></button>
+        <div class="top-title">Spotify</div>
+        <button class="top-btn"><i class="bi bi-three-dots-vertical"></i></button>
+    </div>
+
+    <div class="tab-menu">
+        <span class="tab active">News</span>
+        <span class="tab">Video</span>
+        <span class="tab">Artists</span>
+        <span class="tab">Podcast</span>
+    </div>
+
+    <div class="scrolling-gallery">
+        <div class="album-card" onclick="showPlayer()">
+            <img src="https://upload.wikimedia.org/wikipedia/en/b/b7/NirvanaNevermindalbumcover.jpg" alt="Teen Spirit">
+            <div class="info"><strong>Teen Spirit</strong><br><small>Nirvana</small></div>
+            <i class="bi bi-play-circle-fill play-icon"></i>
+        </div>
+        <div class="album-card">
+            <img src="https://media.pitchfork.com/photos/5c9e4573caa16959e7e7689f/1:1/w_1502,h_1502,c_limit/Billie-Eilish.jpg" alt="Bad Guy">
+            <div class="info"><strong>Bad Guy</strong><br><small>Billie Eilish</small></div>
+            <i class="bi bi-play-circle-fill play-icon"></i>
+        </div>
+        <div class="album-card">
+            <img src="https://upload.wikimedia.org/wikipedia/en/9/90/Scorpion_by_Drake.jpg" alt="Scorpion">
+            <div class="info"><strong>Scorpion</strong><br><small>Drake</small></div>
+            <i class="bi bi-play-circle-fill play-icon"></i>
+        </div>
+    </div>
+    <div class="playlist-section">
+        <div class="playlist-item">
+            <div class="playlist-left">
+                <i class="bi bi-play-circle"></i>
+                <div>
+                    <div class="playlist-title">As It Was</div>
+                    <small>Harry Styles</small>
+                </div>
+            </div>
+            <div>
+                <span class="playlist-time">5:33</span>
+                <i class="bi bi-heart heart-icon"></i>
+            </div>
+        </div>
+        <div class="playlist-item">
+            <div class="playlist-left">
+                <i class="bi bi-play-circle"></i>
+                <div>
+                    <div class="playlist-title">God Did</div>
+                    <small>DJ Khaled</small>
+                </div>
+            </div>
+            <div>
+                <span class="playlist-time">3:43</span>
+                <i class="bi bi-heart heart-icon"></i>
+            </div>
+        </div>
+        <div class="playlist-item">
+            <div class="playlist-left">
+                <i class="bi bi-play-circle"></i>
+                <div>
+                    <div class="playlist-title">Easy On Me</div>
+                    <small>Adele</small>
+                </div>
+            </div>
+            <div>
+                <span class="playlist-time">4:35</span>
+                <i class="bi bi-heart heart-icon"></i>
+            </div>
+        </div>
+
+        <div class="playlist-item">
+            <div class="playlist-left">
+                <i class="bi bi-play-circle"></i>
+                <div>
+                    <div class="playlist-title">Levitating</div>
+                    <small>Dua Lipa</small>
+                </div>
+            </div>
+            <div>
+                <span class="playlist-time">3:24</span>
+                <i class="bi bi-heart heart-icon"></i>
+            </div>
     </div>
 </div>
 
@@ -158,25 +439,26 @@
     const playIcon = document.getElementById('play-icon');
     const currentTimeEl = document.getElementById('current-time');
     const durationEl = document.getElementById('duration');
-    const volumeSlider = document.getElementById('volume-slider');
     const progressFilled = document.getElementById('progress-filled');
     const progressBar = document.querySelector('.progress-bar');
-    const boxContainer = document.getElementById('boxContainer');
 
-    // Create more boxes to fill the width
     for (let i = 0; i < 30; i++) {
         const box = document.createElement('div');
-        box.classList.add('box');
-        boxContainer.appendChild(box);
+        box.classList.add('box', 'quiet-animation');
+        document.getElementById('boxContainer').appendChild(box);
     }
+
+    const boxes = document.getElementsByClassName('box');
 
     function togglePlay() {
         if (audio.paused) {
             audio.play();
             playIcon.className = 'bi bi-pause-fill';
+            for (let box of boxes) box.classList.remove('quiet-animation');
         } else {
             audio.pause();
             playIcon.className = 'bi bi-play-fill';
+            for (let box of boxes) box.classList.add('quiet-animation');
         }
     }
 
@@ -202,6 +484,16 @@
         audio.currentTime = percentage * audio.duration;
     }
 
+    function goBack() {
+        document.getElementById('player-section').style.display = 'none';
+        document.getElementById('gallery-section').style.display = 'flex';
+    }
+
+    function showPlayer() {
+        document.getElementById('gallery-section').style.display = 'none';
+        document.getElementById('player-section').style.display = 'flex';
+    }
+
     audio.addEventListener('loadedmetadata', () => {
         durationEl.textContent = formatTime(audio.duration);
     });
@@ -209,16 +501,6 @@
     audio.addEventListener('timeupdate', () => {
         currentTimeEl.textContent = formatTime(audio.currentTime);
         updateProgress();
-    });
-
-    volumeSlider.addEventListener('input', () => {
-        audio.volume = volumeSlider.value;
-    });
-
-    // Autoplay on load
-    window.addEventListener('load', () => {
-        audio.play().catch(err => console.log('Autoplay failed:', err));
-        playIcon.className = 'bi bi-pause-fill';
     });
 </script>
 </body>
