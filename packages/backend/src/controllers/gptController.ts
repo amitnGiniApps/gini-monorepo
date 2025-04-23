@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { generateProject } from '../services/generateProject';
+import { reviewLoginPageFromUrl } from '../services/reviewLoginPageFromUrl';
 
 export const generateProjectController = async (req: Request, res:Response):Promise<any>=> {
   const formData = req.body as FormData;
@@ -10,5 +11,19 @@ export const generateProjectController = async (req: Request, res:Response):Prom
   } catch (err) {
     console.error('Generation failed:', err);
     res.status(500).json({ error: 'Failed to generate HTML' });
+  }
+};
+
+export const siteReviewController = async (req: Request, res:Response) => {
+  const { siteUrl } = req.body;
+
+  if (!siteUrl) {
+    return res.status(400).json({ error: 'Invalid input. Please provide a valid site url.' });
+  }
+  try {
+    const review = await reviewLoginPageFromUrl(siteUrl);
+    return res.status(200).send(review);
+  } catch (error) {
+    return res.status(500).json({ error: 'Failed to apply features to HTML' });
   }
 };

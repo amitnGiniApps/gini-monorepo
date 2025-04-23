@@ -1,0 +1,97 @@
+.login-page-reviewer-container {
+    max-width: 900px;
+    margin: 2rem auto;
+    padding: 2rem;
+    font-family: 'Segoe UI', sans-serif;
+    box-sizing: border-box; /* Ensure padding doesn't affect the width */
+}
+
+input, button {
+    width: 100%;
+    margin-bottom: 1rem;
+    padding: 0.75rem;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+button {
+    background-color: #4caf50;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+button:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.error {
+    color: red;
+    margin-top: 1rem;
+    font-weight: bold;
+}
+
+.ai-loader {
+    display: flex;
+    justify-content: center;
+    margin: 2rem 0;
+    animation: pulse 1.5s infinite;
+}
+
+.dot {
+    font-size: 2rem;
+    margin: 0 0.5rem;
+    animation: bounce 1.4s infinite;
+}
+
+.dot:nth-child(2) { animation-delay: 0.2s; }
+.dot:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes bounce {
+    0%, 80%, 100% { transform: translateY(0); }
+    40% { transform: translateY(-10px); }
+}
+
+.results {
+    margin-top: 2rem;
+    padding: 1rem;
+    background-color: #1e1e1e;
+    border-radius: 10px;
+    color: #eaeaea;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+.results h2 {
+    font-size: 1.8rem;
+    color: #FFD700;
+    margin-bottom: 1.2rem;
+}
+
+.audit-block {
+    background-color: #2b2b2b;
+    border-left: 5px solid #ff6f61;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border-radius: 6px;
+}
+
+.audit-block p {
+    margin: 0.5rem 0;
+    line-height: 1.5;
+}
+
+.issue {
+    color: #ff6f61;
+    font-weight: bold;
+}
+
+.wrong {
+    color: #f0ad4e;
+}
+
+.fix {
+    color: #9acd32;
+}
+
