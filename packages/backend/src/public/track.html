@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Car Route Tracker Dashboard</title>
+    <link href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css" />
+    <style>
+      * {
+        margin: 0;
+        box-sizing: border-box;
+        font-family: "Segoe UI", sans-serif;
+      }
+      body {
+        background-color: #f6f8fb;
+        display: flex;
+      }
+      .left-sidebar {
+        width: 64px;
+        background-color: #ffffff;
+        padding: 16px 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 24px;
+        border-right: 1px solid #e5e7eb;
+        box-shadow: 2px 0 8px rgba(0, 0, 0, 0.03);
+        height: 100vh;
+        position: sticky;
+        top: 0;
+      }
+      .left-sidebar .icon {
+        width: 24px;
+        height: 24px;
+        position: relative;
+        cursor: pointer;
+      }
+      .left-sidebar .icon:hover::after {
+        content: attr(data-tooltip);
+        position: absolute;
+        left: 36px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: #4f46e5;
+        color: white;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        white-space: nowrap;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      }
+      .left-sidebar .icon.active::before,
+      .left-sidebar .icon.active::after {
+        background-color: #4338ca !important;
+        border-color: #4338ca !important;
+      }
+      .icon.home::before {
+        content: "";
+        position: absolute;
+        top: 4px;
+        left: 4px;
+        width: 16px;
+        height: 16px;
+        background: #4f46e5;
+        clip-path: polygon(50% 0%, 100% 38%, 80% 38%, 80% 100%, 20% 100%, 20% 38%, 0% 38%);
+      }
+      .icon.box::before {
+        content: "";
+        position: absolute;
+        top: 4px;
+        left: 4px;
+        width: 16px;
+        height: 16px;
+        background: #4f46e5;
+        border-radius: 3px;
+      }
+      .icon.route::before {
+        content: "";
+        position: absolute;
+        top: 4px;
+        left: 4px;
+        width: 16px;
+        height: 16px;
+        border: 2px solid #4f46e5;
+        border-radius: 50%;
+      }
+      .icon.settings::before {
+        content: "";
+        position: absolute;
+        top: 4px;
+        left: 4px;
+        width: 16px;
+        height: 16px;
+        background: repeating-conic-gradient(#4f46e5 0deg 10deg, transparent 10deg 20deg);
+        border-radius: 50%;
+      }
+      .icon.user::before {
+        content: "";
+        position: absolute;
+        top: 3px;
+        left: 6px;
+        width: 12px;
+        height: 12px;
+        background: #4f46e5;
+        border-radius: 50%;
+      }
+      .icon.user::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 2px;
+        width: fit-content;
+        height: 12px;
+        background: #4f46e5;
+        border-radius: 0 0 10px 10px;
+      }
+
+      .main {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .navbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px 24px;
+        background-color: #ffffff;
+        border-radius: 16px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+        margin: 20px;
+        gap: 12px;
+      }
+
+      .navbar h1 {
+        font-size: 20px;
+        font-weight: 600;
+        color: #1f2937;
+      }
+
+      .navbar .search {
+        flex: 1;
+        margin: 0 24px;
+        position: relative;
+      }
+
+      .navbar input[type="text"] {
+        width: 100%;
+        padding: 10px 16px;
+        border-radius: 8px;
+        border: 1px solid #d1d5db;
+      }
+
+      .navbar .new-shipment-btn {
+        padding: 10px 16px;
+        background-color: #4f46e5;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-weight: 500;
+        cursor: pointer;
+      }
+
+      .container {
+        display: flex;
+        gap: 20px;
+        padding: 0 20px;
+      }
+
+      .sidebar {
+        width: 35%;
+        background: #fff;
+        border-radius: 16px;
+        padding: 20px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+      }
+
+      .card {
+        background: #f9fafb;
+        border-left: 4px solid #4f46e5;
+        border-radius: 12px;
+        padding: 16px;
+        margin-bottom: 16px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+      }
+
+      .card h4 {
+        font-size: 15px;
+        color: #111827;
+        margin-bottom: 8px;
+      }
+
+      .card span {
+        display: block;
+        font-size: 13px;
+        margin-bottom: 4px;
+        color: #4b5563;
+      }
+
+      .map-container {
+        flex: 1;
+        height: 600px;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+      }
+
+      .status-bar {
+        margin: 20px;
+        background: #ffffff;
+        padding: 16px 24px;
+        border-radius: 16px;
+        display: flex;
+        justify-content: space-between;
+        font-size: 14px;
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.04);
+        color: #374151;
+      }
+
+      .status-bar span {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        font-weight: 500;
+      }
+
+      .truck-image {
+        width: 100%;
+        border-radius: 12px;
+        object-fit: cover;
+        margin-top: 8px;
+      }
+
+      .pulse {
+        animation: pulse 1s ease-in-out infinite;
+        background-color: #d1fae5;
+        padding: 2px 6px;
+        border-radius: 6px;
+        box-shadow: 0 0 8px 2px rgba(34, 197, 94, 0.6);
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          transform: scale(1);
+          opacity: 1;
+        }
+        50% {
+          transform: scale(1.2);
+          opacity: 0.6;
+        }
+      }
+
+      .popup-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(31, 41, 55, 0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 999;
+      }
+
+      .popup-content {
+        background: white;
+        padding: 24px 32px;
+        border-radius: 16px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        width: 400px;
+        margin: 0 0 100px 600px;
+        max-width: 90%;
+        position: relative;
+      }
+
+      .popup-content h2 {
+        margin-bottom: 12px;
+        color: #1f2937;
+      }
+
+      .popup-content p {
+        color: #4b5563;
+      }
+
+      .close-btn {
+        position: absolute;
+        top: 12px;
+        right: 16px;
+        background: none;
+        border: none;
+        font-size: 20px;
+        color: #6b7280;
+        cursor: pointer;
+      }
+
+      .close-btn:hover {
+        color: #111827;
+      }
+
+      .form-group {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 12px;
+      }
+
+      label {
+        font-size: 14px;
+        color: #374151;
+        margin-bottom: 4px;
+      }
+
+      input[type="text"] {
+        padding: 8px 10px;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        font-size: 14px;
+      }
+
+      .submit-btn {
+        background-color: #4f46e5;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 10px;
+        font-weight: 500;
+        cursor: pointer;
+        margin-top: 8px;
+        width: 100%;
+      }
+
+      .submit-btn:hover {
+        background-color: #4338ca;
+      }
+
+      body.dark-theme {
+        background-color: #111827;
+        color: #f3f4f6;
+      }
+
+      body.dark-theme .left-sidebar {
+        background-color: #1f2937;
+        border-right-color: #374151;
+      }
+
+      body.dark-theme .left-sidebar .icon::before {
+        background: #818cf8 !important;
+        border-color: #818cf8 !important;
+      }
+
+      body.dark-theme .navbar,
+      body.dark-theme .status-bar,
+      body.dark-theme .sidebar,
+      body.dark-theme .popup-content {
+        background-color: #1f2937;
+        color: #f3f4f6;
+        box-shadow: none;
+      }
+
+      body.dark-theme .navbar input[type="text"],
+      body.dark-theme input[type="text"] {
+        background: #374151;
+        color: #f3f4f6;
+        border: 1px solid #4b5563;
+      }
+
+      body.dark-theme .card {
+        background: #374151;
+        color: #e5e7eb;
+      }
+
+      body.dark-theme .navbar h1 {
+        color: #e5e7eb;
+      }
+
+      body.dark-theme .card span {
+        color: #e5e7eb;
+      }
+
+      body.dark-theme .card h4 {
+        color: #e5e7eb;
+      }
+
+      body.dark-theme label {
+        color: #e5e7eb;
+      }
+
+      body.dark-theme .popup-content h2,
+      body.dark-theme .popup-content p {
+        color: #e5e7eb;
+      }
+
+      body.dark-theme .submit-btn {
+        background-color: #6366f1;
+      }
+
+      body.dark-theme .submit-btn:hover {
+        background-color: #4f46e5;
+      }
+
+      body.dark-theme .pulse {
+        background-color: #4ade80;
+        color: #111827;
+        box-shadow: 0 0 8px 2px rgba(74, 222, 128, 0.7);
+      }
+    </style>
+  </head>
+  <body>
+    <div id="shipment-popup" style="display: none;" class="popup-overlay">
+      <div class="popup-content">
+        <button class="close-btn" onclick="closePopup()">×</button>
+        <h2>New Shipment</h2>
+        <div class="form-group">
+          <label>Client Name</label>
+          <input type="text" placeholder="e.g. Natalia Sukhetska" />
+        </div>
+        <div class="form-group">
+          <label>Origin</label>
+          <input type="text" placeholder="e.g. Arye Shenkar St 3, Herzliya" />
+        </div>
+        <div class="form-group">
+          <label>Destination</label>
+          <input type="text" placeholder="e.g. Ariel HaNegev, Israel" />
+        </div>
+        <div class="form-group">
+          <label>Truck ID</label>
+          <input type="text" placeholder="e.g. AA 1234 BB" />
+        </div>
+        <button class="submit-btn" onclick="submitShipment()">Submit</button>
+      </div>
+    </div>
+
+    <div class="left-sidebar">
+      <div class="icon home active" data-tooltip="Home"></div>
+      <div class="icon box" data-tooltip="Shipments"></div>
+      <div class="icon route" data-tooltip="Routes"></div>
+      <div class="icon settings" data-tooltip="Settings"></div>
+      <div class="icon user" data-tooltip="Profile"></div>
+    </div>
+
+    <div class="main">
+      <div class="navbar">
+        <h1>Active orders</h1>
+        <div class="search">
+          <input type="text" placeholder="Search" />
+        </div>
+        <button id="theme-toggle" class="new-shipment-btn">🌙</button>
+        <button class="new-shipment-btn">+ New Shipment</button>
+      </div>
+
+      <div class="container">
+        <div class="sidebar">
+          <div class="card">
+            <h4>Order ID: 35 2034 0782 2249</h4>
+            <span><strong>From:</strong> Arye Shenkar St 3, Herzliya</span>
+            <span><strong>To:</strong> Ariel HaNegev</span>
+            <span><strong>Client:</strong> Natalia Sukhetska</span>
+            <span><strong>Date:</strong> 13-14 Feb 2025</span>
+          </div>
+          <div class="card">
+            <h4>Vehicle</h4>
+            <span><strong>Model:</strong> Volvo FH16</span>
+            <span><strong>Weight:</strong> 8,500 kg</span>
+            <span><strong>Truck Number:</strong> AA 1234 BB</span>
+            <span><strong>Space:</strong> 65% / 100%</span>
+          </div>
+          <div class="card">
+            <h4>Track Image</h4>
+            <img
+              style="height: 180px;"
+              class="truck-image"
+              src="https://thumbs.dreamstime.com/b/semi-truck-cargo-delivery-vehicle-clean-simple-d-gray-trailer-isolated-white-background-ideal-logistics-370366946.jpg"
+              alt="Truck"
+            />
+          </div>
+        </div>
+        <div class="map-container">
+          <div id="map" style="height: 100%; width: 100%;"></div>
+        </div>
+      </div>
+
+      <div class="status-bar">
+        <span>📍 Current location: Rivne, 33004</span>
+        <span>Speed: <span style="margin: 0 20px;" id="speed-value" class="pulse">60</span> km/h</span>
+        <span>Kilometers left: 45 km</span>
+        <span>Last stop: 3h ago</span>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
+    <script>
+      function submitShipment() {
+        closePopup();
+      }
+
+      document.querySelector(".new-shipment-btn:last-of-type").addEventListener("click", () => {
+        document.getElementById("shipment-popup").style.display = "flex";
+      });
+
+      function closePopup() {
+        document.getElementById("shipment-popup").style.display = "none";
+      }
+
+      const map = L.map("map").setView([50.4501, 30.5234], 6);
+
+      const baseMaps = {
+        Watercolor: L.tileLayer("https://tiles.stadiamaps.com/tiles/stamen_watercolor/{z}/{x}/{y}.jpg", {
+          attribution: '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://stamen.com/">Stamen</a>',
+        }),
+        Streets: L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          attribution: "&copy; OpenStreetMap contributors",
+        }),
+        Satellite: L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}", {
+          attribution: "Tiles &copy; Esri",
+        }),
+        Topographic: L.tileLayer("https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png", {
+          attribution: "Map data: &copy; OpenTopoMap (CC-BY-SA)",
+        }),
+        Toner: L.tileLayer("https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png", {
+          attribution: '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>',
+        }),
+      };
+
+      baseMaps.Toner.addTo(map);
+      L.control.layers(baseMaps).addTo(map);
+
+      const routePoints = [
+        [32.1641, 34.8148],
+        [32.1047, 35.185],
+      ];
+
+      const route = L.polyline(routePoints, { color: "blue" }).addTo(map);
+
+      L.marker(routePoints[0]).addTo(map).bindPopup("<b>Kyiv, 01001</b><br>24 Khreshchatyk St.");
+      L.marker(routePoints[1]).addTo(map).bindPopup("<b>Lviv, 79000</b><br>3 Sadova St.");
+
+      L.circleMarker([50.6194, 26.2516], {
+        radius: 10,
+        color: "purple",
+        fillColor: "#a78bfa",
+        fillOpacity: 0.8,
+      })
+        .addTo(map)
+        .bindPopup("Current Location: Rivne");
+
+      map.fitBounds(route.getBounds());
+
+      const drawnItems = new L.FeatureGroup();
+      map.addLayer(drawnItems);
+      map.addControl(new L.Control.Draw({ edit: { featureGroup: drawnItems }, draw: true }));
+
+      map.on(L.Draw.Event.CREATED, (e) => drawnItems.addLayer(e.layer));
+
+      const speedEl = document.getElementById("speed-value");
+      setInterval(() => {
+        const randomSpeed = 60 + Math.floor(Math.random() * 7);
+        speedEl.textContent = randomSpeed;
+      }, 3000);
+
+      // Theme toggle
+      const themeToggleBtn = document.getElementById("theme-toggle");
+      const currentTheme = localStorage.getItem("theme");
+      if (currentTheme === "dark") {
+        document.body.classList.add("dark-theme");
+        themeToggleBtn.textContent = "☀️";
+      }
+      themeToggleBtn.addEventListener("click", () => {
+        document.body.classList.toggle("dark-theme");
+        const isDark = document.body.classList.contains("dark-theme");
+        themeToggleBtn.textContent = isDark ? "☀️" : "🌙";
+        localStorage.setItem("theme", isDark ? "dark" : "light");
+      });
+    </script>
+  </body>
+</html>
