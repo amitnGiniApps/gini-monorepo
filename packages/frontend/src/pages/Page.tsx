@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
 
-function Page({ children }: { children: ReactNode }) {
+function Page({ children, className }: { children: ReactNode, className?: string }) {
     return (
         <div className="flex flex-col min-h-screen bg-gray-50 relative shadow-white-400/100">
             <header className="bg-white relative shadow-md flex items-center justify-between px-6 py-4">
@@ -18,7 +18,7 @@ function Page({ children }: { children: ReactNode }) {
                 </nav>
             </header>
 
-            <main className="flex flex-1 flex-row justify-between items-center py-4 pl-[4px] pr-5">
+            <main className={`flex flex-1 flex-row justify-between items-center py-4 pl-[4px] pr-5 ${className}`}>
                 {children}
             </main>
 
