@@ -23,18 +23,17 @@ const transporter = nodemailer.createTransport({
  */
 export const sendEmailWithPDF = async (toEmail: string, subject: string, text: string, pdfPath: string) => {
   try {
-    console.log('running');
     await transporter.sendMail({
       from: process.env.EMAIL_USER,
       to: toEmail,
       subject,
       text,
-      // attachments: [
-      //   {
-      //     filename: 'audit-report.pdf',
-      //     path: pdfPath,
-      //   },
-      // ],
+      attachments: [
+        {
+          filename: 'audit-report.pdf',
+          path: pdfPath,
+        },
+      ],
     });
     console.log('✅ Email sent successfully to', toEmail);
   } catch (error: any) {

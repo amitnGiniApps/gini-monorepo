@@ -32,7 +32,11 @@ ollama list
 ollama run gemma3:4b
 ```
 
-7. Create a new model named `gini-bot` from a custom `Modelfile` (inside `gini-monorepo/packages/backend/src`):
+7. Create a new model named `gini-bot` from a custom `Modelfile` (inside `gini-monorepo/packages/backend/src/models`):
+```bash
+ollama create gini-site-checker-bot -f site-checker-Modelfile
+```
+8. Create a new model named `gini-site-checker-bot` from a custom `Modelfile` (inside `gini-monorepo/packages/backend/src/models`):
 ```bash
 ollama create gini-bot -f Modelfile
 ```
