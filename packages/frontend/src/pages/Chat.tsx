@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import bg from '../assets/cover.avif';
 import userAvatar from '../assets/userAvatar1.png';
 import botAvatar from '../assets/gini-avatar-9.png';
+import axios from "axios";
 
 interface Message {
     user: string;
@@ -23,6 +24,26 @@ const Chat = () => {
     const controllerRef = useRef<AbortController | null>(null);
     const bottomRef = useRef<HTMLDivElement | null>(null);
 
+
+    useEffect(() => {
+        const emailName = localStorage.getItem('emailName');
+        const fetchChatHistory = async () => {
+            try {
+                // Fetch the chat history from the backend
+                const response = await axios.get(`http://localhost:3020/chats/${emailName}`);
+                if(response.data.chats) {
+                    setMessages(response.data.chats); // Set the fetched chats
+                }
+            } catch (err) {
+                console.error('Error fetching chat history:', err);
+            }
+        };
+
+        if (emailName) {
+            fetchChatHistory();
+        }
+    }, []);
+
     const sendMessage = async () => {
         if (!input.trim()) return;
 
@@ -40,7 +61,7 @@ const Chat = () => {
             const res = await fetch('http://localhost:3020/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: input }),
+                body: JSON.stringify({ message: input, username: localStorage.getItem('emailName') }),
                 signal: controller.signal
             });
 

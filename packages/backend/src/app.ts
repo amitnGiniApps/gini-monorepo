@@ -4,18 +4,18 @@ import helmet from 'helmet';
 import cors from 'cors';
 import bodyParser from 'body-parser';
 import path from 'path';
-import { promises as fs } from 'fs';
 import { exec } from 'child_process';
 import axios from 'axios';
 import { config } from 'dotenv';
 import gptRouter from './routes/gptRouter';
+import fs, { promises } from 'fs';
 
 config();
 
 const app = express();
 
 const SYSTEM_PATH = path.join(__dirname, 'system.txt');
-const MODELFILE_PATH = path.join(__dirname, 'Modelfile');
+const MODELFILE_PATH = path.join(__dirname, 'models/Modelfile');
 const MODEL_NAME = 'gini-bot';
 
 app.use(morgan('dev'));
@@ -72,7 +72,7 @@ app.get('/api/v1/generate/:filename', async (req, res) => {
   const filePath = path.join(__dirname, 'public', filename);
 
   try {
-    await fs.access(filePath);
+    await promises.access(filePath);
     res.sendFile(filePath);
   } catch {
     res.status(404).send('File not found');
@@ -80,7 +80,7 @@ app.get('/api/v1/generate/:filename', async (req, res) => {
 });
 
 async function rebuildModelfile() {
-  const systemContentRaw = await fs.readFile(SYSTEM_PATH, 'utf-8');
+  const systemContentRaw = await promises.readFile(SYSTEM_PATH, 'utf-8');
   const staticContentEndIndex = systemContentRaw.indexOf('**Model Information**');
   if (staticContentEndIndex === -1) throw new Error('Static system intro not found.');
 
@@ -105,7 +105,7 @@ PARAMETER temperature 1.2
 SYSTEM """\n${fullSystem}\n"""
 `.trim();
 
-  await fs.writeFile(MODELFILE_PATH, modelfileContent, 'utf-8');
+  await promises.writeFile(MODELFILE_PATH, modelfileContent, 'utf-8');
 }
 
 async function recreateOllamaModel() {
@@ -122,7 +122,7 @@ async function recreateOllamaModel() {
 }
 
 async function loadUpdates() {
-  const systemContentRaw = await fs.readFile(SYSTEM_PATH, 'utf-8');
+  const systemContentRaw = await promises.readFile(SYSTEM_PATH, 'utf-8');
   const modelInfoStart = systemContentRaw.indexOf('**Model Information**');
   if (modelInfoStart === -1) throw new Error('Model Information section not found.');
 
@@ -131,7 +131,7 @@ async function loadUpdates() {
 }
 
 async function saveUpdates(updatesArray: string[]) {
-  const systemContentRaw = await fs.readFile(SYSTEM_PATH, 'utf-8');
+  const systemContentRaw = await promises.readFile(SYSTEM_PATH, 'utf-8');
   const modelInfoStart = systemContentRaw.indexOf('**Model Information**');
   if (modelInfoStart === -1) throw new Error('Model Information section not found.');
 
@@ -145,14 +145,14 @@ ${staticIntro}
 ${updatesArray.join('\n\n')}
 `.trim();
 
-  await fs.writeFile(SYSTEM_PATH, rebuiltSystemTxt + '\n', 'utf-8');
+  await promises.writeFile(SYSTEM_PATH, rebuiltSystemTxt + '\n', 'utf-8');
 }
 
 app.post('/chat', async (req, res) => {
-  const userPrompt = req.body.message;
+  const { message: userPrompt, username } = req.body;
 
   if (!userPrompt) {
-    return res.status(400).json({ error: 'No message provided' });
+    return res.status(400).json({ error: 'No message or username provided' });
   }
 
   try {
@@ -163,14 +163,54 @@ app.post('/chat', async (req, res) => {
     });
 
     if (response.data && response.data.response) {
-      res.json({ reply: response.data.response, box: true });
+      const botResponse = response.data.response;
+
+      // Prepare the chat object for user or bot
+      const userObject = { user: userPrompt };
+      const botObject = { bot: botResponse, box: true }; // Bot response with box key
+
+      if (username) {
+        // Define the file path in the chats folder
+        const userFilePath = path.join(__dirname, 'chats', `${username}.json`);
+        // Check if the user file exists
+        if (fs.existsSync(userFilePath)) {
+          // If the file exists, append the new message and response to the existing chat
+          const chatData = JSON.parse(fs.readFileSync(userFilePath, 'utf8'));
+          chatData.push(userObject, botObject); // Add user and bot entry
+
+          // Write the updated data back to the file
+          fs.writeFileSync(userFilePath, JSON.stringify(chatData, null, 2));
+        } else {
+          // If the file does not exist, create a new file with the first user and bot entry
+          fs.writeFileSync(userFilePath, JSON.stringify([userObject, botObject], null, 2));
+        }
+      }
+
+      // Return the bot's response
+      res.json({ reply: botResponse, box: true });
     } else {
       console.error('Unexpected Ollama response:', response.data);
       res.status(502).json({ error: 'Invalid response from Ollama' });
     }
-  } catch (error: unknown) {
+  } catch (error) {
     console.error('Error querying Ollama:', error);
     res.status(500).json({ error: 'Failed to query Ollama' });
+  }
+});
+
+// Route to fetch all chats for a user
+app.get('/chats/:username', (req, res) => {
+  const { username } = req.params;
+  const userFilePath = path.join(__dirname, 'chats', `${username}.json`);
+
+  // Check if the user file exists
+  if (fs.existsSync(userFilePath)) {
+    // If the file exists, read and return the chat data
+    const chatData = JSON.parse(fs.readFileSync(userFilePath, 'utf8'));
+    res.json({ chats: chatData });
+  } else {
+    // If the file does not exist, return an error
+    res.status(404).json({ error: 'No chat history found for this user' });
   }
 });
 

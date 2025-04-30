@@ -54,7 +54,7 @@ function GeminiPage() {
                 <div className="flex-1 pr-10 text-left w-72">
                     <h1 className="text-6xl bg-gradient-to-r from-green-400 to-blue-700 bg-clip-text text-transparent m-0">Gini
                         AI</h1>
-                    <p className="text-2xl mt-2">Welcome to Gini-Apps</p>
+                    <p className="text-2xl mt-2 text-gray-400">Welcome to Gini-Apps</p>
                     <p className="text-base text-gray-400 mt-2">
                         Your trusted development company where innovation, excellence, and a personal touch join forces
                         to bring your digital product to life.

@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Container, TextField, Button, Table, TableBody, 
-  TableCell, TableContainer, TableHead, TableRow, Paper, 
-  IconButton, CircularProgress, Snackbar, Dialog, DialogTitle, 
-  DialogContent, DialogActions 
+import {
+  Container, TextField, Button, Table, TableBody,
+  TableCell, TableContainer, TableHead, TableRow, Paper,
+  IconButton, CircularProgress, Snackbar, Dialog, DialogTitle,
+  DialogContent, DialogActions
 } from '@mui/material';
 import { Edit, Delete, Save, Cancel } from '@mui/icons-material';
 import axios from 'axios';
@@ -17,7 +17,7 @@ const AdminPage: React.FC = () => {
   const [snackbar, setSnackbar] = useState<{open: boolean, message: string, severity: 'success' | 'error'}>({ open: false, message: '', severity: 'success' });
   const [confirmDeleteIndex, setConfirmDeleteIndex] = useState<number | null>(null);
 
-  const SERVER_URL = 'http://localhost:3040';
+  const SERVER_URL = 'http://localhost:3020';
 
   const fetchUpdates = async () => {
     setLoading(true);
@@ -99,12 +99,12 @@ const AdminPage: React.FC = () => {
 
       {/* Add New Info */}
       <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem' }}>
-        <TextField 
-          label="Add New Info" 
-          variant="outlined" 
-          fullWidth 
-          value={newInfo} 
-          onChange={(e) => setNewInfo(e.target.value)} 
+        <TextField
+          label="Add New Info"
+          variant="outlined"
+          fullWidth
+          value={newInfo}
+          onChange={(e) => setNewInfo(e.target.value)}
         />
         <Button variant="contained" color="primary" onClick={handleAdd} disabled={loading}>
           Add
@@ -136,7 +136,7 @@ const AdminPage: React.FC = () => {
 
                 <TableCell>
                   {editingIndex === idx ? (
-                    <TextField 
+                    <TextField
                       fullWidth
                       value={editingText}
                       onChange={(e) => setEditingText(e.target.value)}

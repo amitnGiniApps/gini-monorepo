@@ -528,10 +528,46 @@
       baseMaps.Toner.addTo(map);
       L.control.layers(baseMaps).addTo(map);
 
-      const routePoints = [
-        [32.1641, 34.8148],
-        [32.1047, 35.185],
+      let routePoints = [
+        [32.1641, 34.8148], // Destination
+        [32.1047, 35.185]   // Placeholder for user's location
       ];
+
+      if ("geolocation" in navigator) {
+        navigator.geolocation.getCurrentPosition(function(position) {
+          const userLat = position.coords.latitude;
+          const userLng = position.coords.longitude;
+          console.log("User's location: ", userLat, userLng);
+
+          // 🔄 Update the second route point with the user's actual location
+          routePoints[1] = [userLat, userLng];
+          console.log("Updated routePoints: ", routePoints);
+
+          // Optionally, calculate the distance between user and destination
+          const distanceToDestination = calculateDistance(
+                  userLat, userLng,
+                  routePoints[0][0], routePoints[0][1]
+          );
+          console.log("Distance to destination: ", distanceToDestination.toFixed(2), "km");
+
+        }, function(error) {
+          console.error("Geolocation error:", error.message);
+        });
+      } else {
+        console.log("Geolocation not supported.");
+      }
+
+      // Haversine formula to compute distance between two lat/lng points
+      function calculateDistance(lat1, lon1, lat2, lon2) {
+        const R = 6371; // km
+        const dLat = (lat2 - lat1) * Math.PI / 180;
+        const dLon = (lon2 - lon1) * Math.PI / 180;
+        const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        return R * c;
+      }
 
       const route = L.polyline(routePoints, { color: "blue" }).addTo(map);
 
