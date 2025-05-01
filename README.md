@@ -43,3 +43,7 @@ ollama run gini-bot
 ```
 
 ollama pull mistral  
+
+
+pip install chromadb
+pip3 install chromadb --break-system-packages

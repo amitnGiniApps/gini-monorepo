@@ -1,11 +1,9 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-// import ProjectQuestionnaire from "./pages/ProjectQuestionnaire";
 
 import './App.css';
 import GiniAIPage from "./pages/AIPage.tsx";
 import AdminPage from "./pages/Admin.tsx"
 
-// import Chat from "./pages/Chat.tsx";
 
 
 function App() {
