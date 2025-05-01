@@ -17,7 +17,7 @@ const AdminPage: React.FC = () => {
   const [snackbar, setSnackbar] = useState<{open: boolean, message: string, severity: 'success' | 'error'}>({ open: false, message: '', severity: 'success' });
   const [confirmDeleteIndex, setConfirmDeleteIndex] = useState<number | null>(null);
 
-  const SERVER_URL = 'http://localhost:3020';
+  const SERVER_URL = 'http://localhost:3040';
 
   const fetchUpdates = async () => {
     setLoading(true);

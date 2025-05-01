@@ -1,3 +1,8 @@
+import giniSiteChecker from '../assets/gini-site-checker.png'
+import giniChat from '../assets/gini-chat.png'
+import giniSiteGnerator from '../assets/gini-site-generator.png'
+
+
 export const projectQuestionnaire = [
     {
         id: "projectName",
@@ -111,4 +116,19 @@ export const projectQuestionnaire = [
             { id: "url", label: "URL", type: "text" }
         ]
     }
+];
+
+export const landingPageSlides = [
+    {
+        image: giniSiteGnerator,
+        description: 'Lets start creating your site by generating an AI template.',
+    },
+    {
+        image:giniChat,
+        description: 'Know Gini using our AI Chat.',
+    },
+    {
+        image: giniSiteChecker,
+        description: 'AI Site Checker finds issues and boosts your website’s performance.'
+    },
 ];
