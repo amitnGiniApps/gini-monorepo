@@ -3,37 +3,38 @@ import bg from "../assets/gini-avatar-0.png";
 
 export default function LandingPage() {
   const [htmlContent, setHtmlContent] = useState<string |null>(null);
-  const [loading, setLoading] = useState(false);
+  const [loading] = useState(false);
 
-  const onSubmit = async (appType) => {
-    setHtmlContent(null);
-    setLoading(true);
+  // const onSubmit = async (appType) => {
+  //   setHtmlContent(null);
+  //   setLoading(true);
+  //
+  //   await new Promise((resolve) => setTimeout(resolve, 2000));
+  //
+  //   try {
+  //     let url = `http://localhost:3020/api/v1/generate/${appType}`;
+  //     if (appType === "calendar-ai") {
+  //       url = "http://localhost:3020/api/v2/generate";
+  //     }
+  //     const response = await fetch(url, {
+  //       method: "GET",
+  //       headers: { "Content-Type": "application/json" },
+  //     });
+  //
+  //     if (response.ok) {
+  //       const html = await response.text();
+  //       setHtmlContent(html);
+  //       setLoading(false);
+  //     } else {
+  //       console.error("Error fetching HTML", response);
+  //     }
+  //   } catch (error) {
+  //     console.error("Failed to generate HTML", error);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-
-    try {
-      let url = `http://localhost:3020/api/v1/generate/${appType}`;
-      if (appType === "calendar-ai") {
-        url = "http://localhost:3020/api/v2/generate";
-      }
-      const response = await fetch(url, {
-        method: "GET",
-        headers: { "Content-Type": "application/json" },
-      });
-
-      if (response.ok) {
-        const html = await response.text();
-        setHtmlContent(html);
-        setLoading(false);
-      } else {
-        console.error("Error fetching HTML", response);
-      }
-    } catch (error) {
-      console.error("Failed to generate HTML", error);
-    } finally {
-      setLoading(false);
-    }
-  };
   return (
     <div className="bg-no-repeat bg-contain bg-bottom"
          style={{flex: '0.5', alignSelf:'stretch', backgroundImage: `url(${bg})` }}

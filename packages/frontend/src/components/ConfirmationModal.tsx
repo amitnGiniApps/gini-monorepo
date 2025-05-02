@@ -1,6 +1,6 @@
 import { useQuestionnaireStore } from "../store/useQuestionnaireStore";
 
-export default function ConfirmationModal({ formData, onConfirm }: { formData: any, onConfirm: () => void }) {
+export default function ConfirmationModal({ formData, onConfirm }: { formData: unknown, onConfirm: () => void }) {
     const { setShowConfirmation } = useQuestionnaireStore();
 
     return (

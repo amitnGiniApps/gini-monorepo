@@ -9,6 +9,7 @@ import { exec } from 'child_process';
 import axios from 'axios';
 import { config } from 'dotenv';
 import gptRouter from './routes/gptRouter';
+import { createDocFile } from './services/docBuilder';
 
 config();
 
@@ -93,7 +94,6 @@ async function rebuildModelfile() {
 ${staticIntro}
 
 **Model Information**
-
 ${numberedUpdates}
 `.trim();
 
@@ -155,6 +155,35 @@ app.post('/chat', async (req, res) => {
     return res.status(400).json({ error: 'No message provided' });
   }
 
+  // Define your structured data responses
+  const structuredResponses = {
+    services: [
+      'Web Development',
+      'Mobile App Development',
+      'Cloud Infrastructure',
+      'DevOps Consulting',
+    ],
+    projects: [
+      { name: 'Project Alpha', description: 'E-commerce platform' },
+      { name: 'Project Beta', description: 'Real-time chat app' },
+    ],
+  };
+
+  // Simple rule-based intent detection (replace with LLM classifier if needed)
+  const lowerPrompt = userPrompt.toLowerCase();
+  if (lowerPrompt.includes('services')) {
+    return res.json({ reply: 'The services list:', type: 'services', data: structuredResponses.services });
+  }
+  if (lowerPrompt.includes('projects')) {
+
+    return res.json({ reply: 'The Projects list:', type: 'projects', data: structuredResponses.projects });
+  }
+  if (lowerPrompt.includes('team')) {
+
+    return res.json({ reply: 'Our best team:', type: 'team', data: structuredResponses.projects });
+  }
+
+  // Otherwise, fallback to AI response
   try {
     const response = await axios.post('http://localhost:11434/api/generate', {
       model: MODEL_NAME,
@@ -215,6 +244,7 @@ app.post('/edit-model-info', async (req, res) => {
       return res.status(400).json({ error: 'Invalid index.' });
     }
 
+    // noinspection TypeScriptUnresolvedReference
     updates[index] = newInfo.trim();
 
     await saveUpdates(updates);
@@ -249,6 +279,25 @@ app.post('/delete-model-info', async (req, res) => {
   } catch (error) {
     console.error('Error deleting model info:', error);
     res.status(500).json({ error: 'Failed to delete model info.' });
+  }
+});
+
+app.post('/test-doc', async (req, res) => {
+  console.log('test doc');
+  try {
+    const filename = 'test-document.docx';
+    const filePath = await createDocFile(filename);
+
+    res.download(filePath, filename, (err) => {
+      if (!err) {
+        // fs.unlinkSync(filePath); // delete after sending
+      } else {
+        console.error('Download error:', err);
+      }
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Failed to create document');
   }
 });
 

@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
-  Container, TextField, Button, Table, TableBody,
+  Box, Container, TextField, Button, Table, TableBody,
   TableCell, TableContainer, TableHead, TableRow, Paper,
   IconButton, CircularProgress, Snackbar, Dialog, DialogTitle,
-  DialogContent, DialogActions
+  DialogContent, DialogActions, Typography
 } from '@mui/material';
 import { Edit, Delete, Save, Cancel } from '@mui/icons-material';
 import axios from 'axios';
@@ -14,12 +14,12 @@ const AdminPage: React.FC = () => {
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [editingText, setEditingText] = useState('');
   const [loading, setLoading] = useState(false);
-  const [snackbar, setSnackbar] = useState<{open: boolean, message: string, severity: 'success' | 'error'}>({ open: false, message: '', severity: 'success' });
+  const [snackbar, setSnackbar] = useState<{ open: boolean, message: string, severity: 'success' | 'error' }>({ open: false, message: '', severity: 'success' });
   const [confirmDeleteIndex, setConfirmDeleteIndex] = useState<number | null>(null);
 
-  const SERVER_URL = 'http://localhost:3040';
+  const SERVER_URL = 'http://localhost:3020';
 
-  const fetchUpdates = async () => {
+  const fetchUpdates = useCallback(async () => {
     setLoading(true);
     try {
       const res = await axios.get(`${SERVER_URL}/list-model-info`);
@@ -27,13 +27,14 @@ const AdminPage: React.FC = () => {
     } catch (error) {
       console.error('Failed to fetch model info:', error);
       showSnackbar('Failed to load updates', 'error');
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
-  };
+  }, []);
 
   useEffect(() => {
     fetchUpdates();
-  }, []);
+  }, [fetchUpdates]);
 
   const showSnackbar = (message: string, severity: 'success' | 'error') => {
     setSnackbar({ open: true, message, severity });
@@ -94,107 +95,119 @@ const AdminPage: React.FC = () => {
   };
 
   return (
-    <Container maxWidth="md" sx={{ mt: 5 }}>
-      <h1>Gini-Apps Model Admin</h1>
+      <Container width="80%" sx={{ mt: 6 }}>
+        <Typography variant="h4" fontWeight="bold" gutterBottom>
+          Admin Panel
+        </Typography>
 
-      {/* Add New Info */}
-      <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem' }}>
-        <TextField
-          label="Add New Info"
-          variant="outlined"
-          fullWidth
-          value={newInfo}
-          onChange={(e) => setNewInfo(e.target.value)}
-        />
-        <Button variant="contained" color="primary" onClick={handleAdd} disabled={loading}>
-          Add
-        </Button>
-      </div>
+        <Box display="flex" gap={2} mb={4}>
+          <TextField
+              label="New Info"
+              variant="outlined"
+              fullWidth
+              value={newInfo}
+              onChange={(e) => setNewInfo(e.target.value)}
+          />
+          <Button variant="contained" onClick={handleAdd} disabled={loading} sx={{ borderRadius: 3 }}>
+            Add
+          </Button>
+        </Box>
 
-      {/* Loading Spinner */}
-      {loading && (
-        <div style={{ textAlign: 'center', marginBottom: '1rem' }}>
-          <CircularProgress />
-        </div>
-      )}
+        {loading && (
+            <Box display="flex" justifyContent="center" mb={2}>
+              <CircularProgress />
+            </Box>
+        )}
 
-      {/* Info Table */}
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>#</TableCell>
-              <TableCell>Info</TableCell>
-              <TableCell>Actions</TableCell>
-            </TableRow>
-          </TableHead>
-
-          <TableBody>
-            {updates.map((info, idx) => (
-              <TableRow key={idx}>
-                <TableCell>{idx + 1}</TableCell>
-
-                <TableCell>
-                  {editingIndex === idx ? (
-                    <TextField
-                      fullWidth
-                      value={editingText}
-                      onChange={(e) => setEditingText(e.target.value)}
-                    />
-                  ) : (
-                    info
-                  )}
-                </TableCell>
-
-                <TableCell>
-                  {editingIndex === idx ? (
-                    <>
-                      <IconButton color="primary" onClick={handleSave}>
-                        <Save />
-                      </IconButton>
-                      <IconButton color="secondary" onClick={() => { setEditingIndex(null); setEditingText(''); }}>
-                        <Cancel />
-                      </IconButton>
-                    </>
-                  ) : (
-                    <div className='flex'>
-                      <IconButton color="primary" onClick={() => handleEdit(idx, info)}>
-                        <Edit />
-                      </IconButton>
-                      <IconButton color="error" onClick={() => setConfirmDeleteIndex(idx)}>
-                        <Delete />
-                      </IconButton>
-                    </div>
-                  )}
-                </TableCell>
+        <TableContainer
+            component={Paper}
+            elevation={2}
+            sx={{
+              borderRadius: 3,
+              maxHeight: 600, // Set the scrollable height here
+              overflowY: 'auto',
+              width:'100%'
+            }}
+        >
+          <Table stickyHeader>
+            <TableHead>
+              <TableRow>
+                <TableCell sx={{ fontWeight: 'bold', backgroundColor: 'background.paper' }}>#</TableCell>
+                <TableCell sx={{ fontWeight: 'bold', backgroundColor: 'background.paper' }}>Info</TableCell>
+                <TableCell sx={{ fontWeight: 'bold', backgroundColor: 'background.paper' }}>Actions</TableCell>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+            </TableHead>
+            <TableBody>
+              {updates.map((info, idx) => (
+                  <TableRow key={idx}>
+                    <TableCell>{idx + 1}</TableCell>
+                    <TableCell>
+                      {editingIndex === idx ? (
+                          <TextField
+                              fullWidth
+                              size="small"
+                              value={editingText}
+                              onChange={(e) => setEditingText(e.target.value)}
+                          />
+                      ) : (
+                          <Typography variant="body2">{info}</Typography>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {editingIndex === idx ? (
+                          <div className="flex flex-row">
+                            <IconButton onClick={handleSave}>
+                              <Save/>
+                            </IconButton>
+                            <IconButton onClick={() => {
+                              setEditingIndex(null);
+                              setEditingText('');
+                            }}>
+                              <Cancel/>
+                            </IconButton>
+                          </div>
+                      ) : (
+                          <div className="flex flex-row">
+                        <IconButton onClick={() => handleEdit(idx, info)}>
+                        <Edit />
+                        </IconButton>
+                        <IconButton color="error" onClick={() => setConfirmDeleteIndex(idx)}>
+                      <Delete/>
+                    </IconButton>
+                  </div>
+              )}
+            </TableCell>
+                  </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
 
-      {/* Snackbar */}
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={3000}
-        onClose={() => setSnackbar({ ...snackbar, open: false })}
-        message={snackbar.message}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-      />
 
-      {/* Confirm Delete Dialog */}
-      <Dialog
-        open={confirmDeleteIndex !== null}
-        onClose={() => setConfirmDeleteIndex(null)}
-      >
-        <DialogTitle>Confirm Delete</DialogTitle>
-        <DialogContent>Are you sure you want to delete this info?</DialogContent>
-        <DialogActions>
-          <Button onClick={() => setConfirmDeleteIndex(null)}>Cancel</Button>
-          <Button color="error" onClick={handleDeleteConfirmed}>Delete</Button>
-        </DialogActions>
-      </Dialog>
-    </Container>
+        <Snackbar
+            open={snackbar.open}
+            autoHideDuration={3000}
+            onClose={() => setSnackbar({ ...snackbar, open: false })}
+            message={snackbar.message}
+            anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+        />
+
+        <Dialog
+            open={confirmDeleteIndex !== null}
+            onClose={() => setConfirmDeleteIndex(null)}
+        >
+          <DialogTitle>Delete Info</DialogTitle>
+          <DialogContent>
+            Are you sure you want to delete this item?
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setConfirmDeleteIndex(null)}>Cancel</Button>
+            <Button variant="contained" color="error" onClick={handleDeleteConfirmed}>
+              Delete
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </Container>
   );
 };
 

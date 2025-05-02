@@ -120,6 +120,7 @@
         flex: 1;
         display: flex;
         flex-direction: column;
+        overflow: hidden;
       }
 
       .navbar {
@@ -130,7 +131,7 @@
         background-color: #ffffff;
         border-radius: 16px;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
-        margin: 20px;
+        margin: 10px 20px;
         gap: 12px;
       }
 
@@ -174,6 +175,7 @@
         background: #fff;
         border-radius: 16px;
         padding: 20px;
+        max-height: 500px;
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
       }
 
@@ -470,15 +472,15 @@
           <div class="card">
             <h4>Track Image</h4>
             <img
-              style="height: 180px;"
+              style="height: 100px"
               class="truck-image"
               src="https://thumbs.dreamstime.com/b/semi-truck-cargo-delivery-vehicle-clean-simple-d-gray-trailer-isolated-white-background-ideal-logistics-370366946.jpg"
               alt="Truck"
             />
           </div>
         </div>
-        <div class="map-container">
-          <div id="map" style="height: 100%; width: 100%;"></div>
+        <div style="max-height: 500px" class="map-container">
+          <div id="map" style="height: 100%; width: 100%"></div>
         </div>
       </div>
 

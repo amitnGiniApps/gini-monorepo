@@ -4,7 +4,7 @@ import Projects from './Projects'
 
 function GiniAIPage() {
     return (
-        <Page>
+        <Page className="bg-gradient-to-b from-[#f9fafb] to-[#e9ecf1]">
             <Projects/>
             <Chat />
         </Page>

@@ -1,9 +1,9 @@
 import { FormProvider, useForm } from "react-hook-form";
-import { projectQuestionnaire } from "../constant";
-import {useQuestionnaireStore} from "../store/useQuestionnaireStore.ts";
-import ConfirmationModal from "../components/ConfirmationModal.tsx";
-import FormFieldRenderer from "../components/FormFieldRenderer.tsx";
-import './ProjectQuestionnaire.css';
+import { projectQuestionnaire } from "../../constant";
+import {useQuestionnaireStore} from "../../store/useQuestionnaireStore.ts";
+import ConfirmationModal from "../../components/ConfirmationModal.tsx";
+import FormFieldRenderer from "../../components/FormFieldRenderer.tsx";
+import './index.css';
 
 export default function ProjectQuestionnaire() {
     const methods = useForm();
@@ -26,7 +26,7 @@ export default function ProjectQuestionnaire() {
     const currentField = projectQuestionnaire[step];
     const isRepeaterStep = currentField.type === "repeater";
 
-    const onSubmit = async (data: any) => {
+    const onSubmit = async (data: unknown) => {
         setLoading(true);
         setSubmit(true);
         setHtmlContent(null);

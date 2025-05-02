@@ -1,7 +1,7 @@
 import { useFormContext } from 'react-hook-form';
 import { useWatch } from 'react-hook-form';
 
-export default function FormFieldRenderer({ field }: { field: any }) {
+export default function FormFieldRenderer({ field }: { field: unknown }) {
     const { register, setValue } = useFormContext();
     const formData = useWatch();
 
@@ -35,7 +35,7 @@ export default function FormFieldRenderer({ field }: { field: any }) {
             <div className="form-group">
                 <label>{label}</label>
                 <div className="card-grid">
-                    {options.map((opt: any) => {
+                    {options.map((opt: unknown) => {
                         const value = typeof opt === 'string' ? opt : opt.id;
                         const optLabel = typeof opt === 'string' ? opt : opt.label;
                         const isActive = selected.includes(value);
@@ -67,7 +67,7 @@ export default function FormFieldRenderer({ field }: { field: any }) {
         return (
             <div className="form-group">
                 <label>{label}</label>
-                {field.fields.map((nestedField: any) => (
+                {field.fields.map((nestedField: unknown) => (
                     <FormFieldRenderer key={nestedField.id} field={nestedField} />
                 ))}
             </div>
@@ -79,9 +79,9 @@ export default function FormFieldRenderer({ field }: { field: any }) {
         return (
             <div className="form-group">
                 <label>{label}</label>
-                {selectedFields.map((_field: any, index: number) => (
+                {selectedFields.map((_field: unknown, index: number) => (
                     <div key={index} className="repeater-item">
-                        {field.fields.map((nestedField: any) => (
+                        {field.fields.map((nestedField: unknown) => (
                             <FormFieldRenderer key={nestedField.id} field={nestedField} />
                         ))}
                     </div>

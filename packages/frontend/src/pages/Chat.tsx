@@ -3,6 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import bg from '../assets/cover.avif';
 import userAvatar from '../assets/userAvatar1.png';
 import botAvatar from '../assets/gini-avatar-9.png';
+import ServicesGrid from "../components/Services.tsx";
+import TeamCards from "../components/UsersCards.tsx";
 
 interface Message {
     user: string;
@@ -16,8 +18,7 @@ const Chat = () => {
     const [isTyping, setIsTyping] = useState(false);
     const [canStop, setCanStop] = useState(false);
 
-    const [htmlContent, setHtmlContent] = useState<string | null>(null);
-    const [loading, setLoading] = useState(false);
+    // const [htmlContent, setHtmlContent] = useState<string | null>(null);
 
     const intervalRef = useRef<NodeJS.Timeout | number>(0);
     const controllerRef = useRef<AbortController | null>(null);
@@ -37,7 +38,7 @@ const Chat = () => {
         controllerRef.current = controller;
 
         try {
-            const res = await fetch('http://localhost:3020/chat', {
+            const res = await fetch('http://localhost:3020/test-doc', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ message: input }),
@@ -50,7 +51,7 @@ const Chat = () => {
             setTimeout(() => setIsTyping(false), 200);
 
             let i = 0;
-            const botMessage: Message = { user: '', bot: '', box: data.box || false };
+            const botMessage: Message = { user: '', bot: '', box: data.box || false, type:data.type || ''};
             setMessages((prev) => [...prev, botMessage]);
 
             intervalRef.current = window.setInterval(() => {
@@ -85,6 +86,7 @@ const Chat = () => {
     };
 
     const handleBotMessageClick = (message: Message) => {
+        console.log('test')
         const params = new URLSearchParams(location.search);
 
         if (message?.bot?.includes('Careers')) {
@@ -98,122 +100,30 @@ const Chat = () => {
         window.history.replaceState({}, '', newUrl);
     };
 
-    const fetchBoxData = async () => {
-        setHtmlContent(null);
-        setLoading(true);
-
-        await new Promise((resolve) => setTimeout(resolve, 2000));
-
-        try {
-            const url = 'http://localhost:3020/api/v1/generate/track';
-            const response = await fetch(url, {
-                method: "GET",
-                headers: { "Content-Type": "application/json" },
-            });
-
-            if (response.ok) {
-                const html = await response.text();
-                setHtmlContent(html);
-            } else {
-                console.error("Error fetching HTML", response);
-            }
-        } catch (error) {
-            console.error("Failed to generate HTML", error);
-        } finally {
-            setLoading(false);
-        }
-    };
 
     useEffect(() => {
         bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [messages, isTyping]);
 
     return (
-        <div
+        <AnimatePresence mode="wait">
+        <motion.div
+            initial={{ opacity: 0, y: 50, scale: 0.95 }}
+
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, x: 100 }}
+
+            transition={{ duration: 0.4, ease: 'easeOut' }}
+
+
             style={{
                 width: '600px',
                 alignSelf: 'stretch',
                 flex: '1 0 55%',
-                height:'auto'
+                height: 'auto'
             }}
-            className="w-[600px] h-[600px] max-h-[90vh] flex flex-col rounded-[12px] bg-[#e7f0f9] shadow-xl shadow-black/10 overflow-hidden z-40"
+            className="w-[600px] h-[600px] max-h-[80vh] flex flex-col rounded-[12px] bg-[#e7f0f9] shadow-md shadow-black/10 overflow-hidden z-40 mr-[20px]"
         >
-            {/* Loading Popup */}
-            {loading && (
-                <div
-                    style={{
-                        position: "fixed",
-                        padding:20,
-                        top: 0,
-                        left: 0,
-                        width: "100vw",
-                        height: "100vh",
-                        backgroundColor: "rgba(0, 0, 0, 0.5)",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        overflow: "hidden",
-                        zIndex: 1000,
-                    }}
-                >
-                    <div className="spinner"></div>
-                </div>
-            )}
-
-            {/* HTML iframe Popup */}
-            {htmlContent && (
-                <div
-                    style={{
-                        position: "fixed",
-                        top: 0,
-                        left: 0,
-                        width: "100vw",
-                        height: "100vh",
-                        backgroundColor: "rgba(0, 0, 0, 0.5)",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        overflow: "hidden",
-                        zIndex: 1000,
-                    }}
-                >
-                    <div
-                        onClick={() => setHtmlContent(null)}
-                        style={{
-                            position: "relative",
-                            display: "flex",
-                            justifyContent: "center",
-                            alignItems:'center',
-                            width: "100%",
-                            height: "100%",
-                            backgroundColor: "transparent",
-                            borderRadius: "12px",
-                            overflow: "hidden",
-                            padding: "0 100px",
-                        }}
-                    >
-                        <iframe
-                            title="Generated HTML"
-                            srcDoc={htmlContent}
-                            style={{
-                                width: "1400px",
-                                height: "800px",
-                                border: "1px solid white",
-                                // marginTop: "2rem",
-                                borderRadius: "8px",
-                                background: "white",
-                                // marginTop:'300px',
-                                // padding: "10px",
-                                boxShadow: "0 8px 24px rgba(0, 0, 0, 0.25)",
-                                overflow: "auto",   // <--- Important
-                                overflowX: "hidden", // Optional: only scroll vertically
-                                overflowY: "auto",
-                            }}
-                        />
-                    </div>
-                </div>
-            )}
-
             {/* Messages Area */}
             <div
                 style={{ backgroundImage: `url(${bg})` }}
@@ -222,13 +132,13 @@ const Chat = () => {
                 <div className="absolute inset-0 bg-green-100/20 z-0" />
                 <div className="relative z-10 px-4 space-y-2">
                     <AnimatePresence>
-                        {messages.map((m, i) => (
+                        {messages.map((m, i) => console.log(m) || (
                             <motion.div
                                 key={i}
-                                initial={{ opacity: 0, y: 10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0 }}
-                                transition={{ duration: 0.3 }}
+                                initial={{ opacity: 0, x: m.bot ? -50 : 50, scale: 0.95 }}
+                                animate={{ opacity: 1, x: 0, scale: 1 }}
+                                exit={{ opacity: 0, x: m.bot ? -50 : 50, scale: 0.95 }}
+                                transition={{ duration: 0.3, ease: 'easeOut' }}
                                 className={`flex flex-col ${m.bot ? 'items-start' : 'items-end'} gap-2`}
                             >
                                 <div className="flex items-end gap-2">
@@ -242,7 +152,8 @@ const Chat = () => {
                                         onClick={() => handleBotMessageClick(m)}
                                         className={`max-w-[60%] text-[14px] p-2 rounded-2xl mt-[20px] text-sm whitespace-pre-wrap leading-5 shadow-md ${
                                             m.bot
-                                                ? 'bg-gray-200 text-left rounded-bl-none shadow-gray-400/90'
+                                                // ? 'bg-gray-200 text-left rounded-bl-none shadow-gray-400/90'
+                                                ? 'bg-white text-left rounded-bl-none shadow-gray-400/10'
                                                 : 'bg-blue-200 text-right rounded-br-none shadow-gray-400/90'
                                         }`}
                                     >
@@ -254,16 +165,8 @@ const Chat = () => {
                                         <img src={userAvatar} alt="User" className="w-[60px] h-[60px] rounded-full" />
                                     )}
                                 </div>
-
-                                {/* Fetch Box Data Button */}
-                                {m.bot && m.box && (
-                                    <button
-                                        onClick={fetchBoxData}
-                                        className="ml-[72px] mt-2 bg-blue-500 text-white text-xs px-4 py-1 rounded-full hover:bg-blue-600 transition"
-                                    >
-                                        Fetch Box Track Application
-                                    </button>
-                                )}
+                                {m.bot && (m.type === 'services' || m.type === 'projects') && <ServicesGrid contentType={m.type}/>}
+                                {m.bot && m.type === 'team'  && <TeamCards/>}
                             </motion.div>
                         ))}
                     </AnimatePresence>
@@ -313,7 +216,8 @@ const Chat = () => {
                     </button>
                 )}
             </div>
-        </div>
+        </motion.div>
+        </AnimatePresence>
     );
 };
 

@@ -14,3 +14,7 @@
     background-repeat: no-repeat;
     background-size: cover;
 }
+
+.hide-scrollbar::-webkit-scrollbar {
+    display: none;
+}
