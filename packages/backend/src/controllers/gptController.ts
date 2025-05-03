@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { generateProject } from '../services/generateProject';
 import { reviewLoginPageFromUrl } from '../services/reviewLoginPageFromUrl';
 import { sendAuditReport } from '../services/sendAuditReport';
+import { generateDocumentFile } from '../services/googleDocs';
 
 export const generateProjectController = async (req: Request, res:Response):Promise<any>=> {
   const formData = req.body as FormData;
@@ -44,3 +45,21 @@ export const sendReportController = async (req: Request, res: Response) => {
     res.status(500).json({ error: 'Failed to send report' });
   }
 };
+
+export const docxFileController = async (req: Request, res: Response) => {
+  try {
+    const { companyName, projectName, description } = req.body;
+
+    if (!projectName || !description) {
+      return res.status(400).json({ error: 'projectName and description are required' });
+    }
+
+    await generateDocumentFile({ companyName, projectName, description });
+    res.status(200).json({ success: true, message: 'Report sent successfully' });
+  } catch (error: any) {
+    console.error('❌ Error sending report:', error.message);
+    res.status(500).json({ error: 'Failed to send report' });
+  }
+};
+
+

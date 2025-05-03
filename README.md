@@ -36,6 +36,12 @@ ollama run gemma3:4b
 ```bash
 ollama create gini-site-checker-bot -f site-checker-Modelfile
 ```
+
+7. Create a new model named `docs-genrator-bot` from a custom `Modelfile` (inside `gini-monorepo/packages/backend/src/models`):
+```bash
+ ollama create docs-genrator-bot -f docs-generator-Modelfile
+```
+
 8. Create a new model named `gini-site-checker-bot` from a custom `Modelfile` (inside `gini-monorepo/packages/backend/src/models`):
 ```bash
 ollama create gini-bot -f Modelfile
