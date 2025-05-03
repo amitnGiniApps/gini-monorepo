@@ -1,25 +1,25 @@
-import { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import bg from '../assets/cover.avif';
-import userAvatar from '../assets/userAvatar1.png';
-import botAvatar from '../assets/gini-avatar-9.png';
+
+import Page from "./Page.tsx";
 import ServicesGrid from "../components/Services.tsx";
 import TeamCards from "../components/UsersCards.tsx";
 
-interface Message {
-    user: string;
-    bot?: string;
-    box?: boolean;
-}
+import {Message} from '../types/index.ts'
+import chatBackground from '../assets/cover.avif';
+import botAvatar from '../assets/gini-avatar-9.png';
+import userAvatar from '../assets/userAvatar1.png';
+import giniBot from "../assets/gini-avatar-0.png";
 
-const Chat = () => {
+
+
+
+
+const ChatPage = () => {
     const [input, setInput] = useState('');
     const [messages, setMessages] = useState<Message[]>([]);
     const [isTyping, setIsTyping] = useState(false);
     const [canStop, setCanStop] = useState(false);
-
-    // const [htmlContent, setHtmlContent] = useState<string | null>(null);
-
     const intervalRef = useRef<NodeJS.Timeout | number>(0);
     const controllerRef = useRef<AbortController | null>(null);
     const bottomRef = useRef<HTMLDivElement | null>(null);
@@ -38,7 +38,8 @@ const Chat = () => {
         controllerRef.current = controller;
 
         try {
-            const res = await fetch('http://localhost:3020/test-doc', {
+            // const res = await fetch('http://localhost:3020/test-doc', {
+            const res = await fetch('http://localhost:3020/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ message: input }),
@@ -105,34 +106,54 @@ const Chat = () => {
         bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [messages, isTyping]);
 
+    useEffect(() => {
+        // Initial greeting message
+        setMessages([
+            {
+                bot: "Hello, I'm Gini Bot. I can help you with:",
+                type: 'options',
+                options: [
+                    'Show me Gini Lead Team',
+                    'Talk to support',
+                    'See Services list',
+                    'Audit my Web Site',
+                    'View Ai Template Projects',
+                ]
+            }
+        ]);
+    }, []);
+
+
     return (
+        <Page className="bg-gradient-to-b from-[#f9fafb] to-[#e9ecf1]">
+        <div className="bg-no-repeat bg-contain bg-bottom"
+             style={{flex: '0.5', alignSelf:'stretch', backgroundImage: `url(${giniBot})` }}
+        >
+        </div>
+
         <AnimatePresence mode="wait">
         <motion.div
             initial={{ opacity: 0, y: 50, scale: 0.95 }}
-
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, x: 100 }}
-
             transition={{ duration: 0.4, ease: 'easeOut' }}
-
-
             style={{
                 width: '600px',
                 alignSelf: 'stretch',
                 flex: '1 0 55%',
                 height: 'auto'
             }}
-            className="w-[600px] h-[600px] max-h-[80vh] flex flex-col rounded-[12px] bg-[#e7f0f9] shadow-md shadow-black/10 overflow-hidden z-40 mr-[20px]"
+            className="w-[600px] h-[600px] max-h-[80vh] flex flex-col rounded-[12px] bg-[#e7f0f9] shadow-sm overflow-hidden z-40 mr-[20px]"
         >
             {/* Messages Area */}
             <div
-                style={{ backgroundImage: `url(${bg})` }}
+                style={{ backgroundImage: `url(${chatBackground})` }}
                 className="relative flex-1 overflow-y-auto bg-no-repeat bg-contain bg-top"
             >
                 <div className="absolute inset-0 bg-green-100/20 z-0" />
                 <div className="relative z-10 px-4 space-y-2">
                     <AnimatePresence>
-                        {messages.map((m, i) => console.log(m) || (
+                        {messages.map((m, i) => (
                             <motion.div
                                 key={i}
                                 initial={{ opacity: 0, x: m.bot ? -50 : 50, scale: 0.95 }}
@@ -142,34 +163,55 @@ const Chat = () => {
                                 className={`flex flex-col ${m.bot ? 'items-start' : 'items-end'} gap-2`}
                             >
                                 <div className="flex items-end gap-2">
-                                    {/* Avatar */}
                                     {m.bot && (
                                         <img src={botAvatar} alt="Bot" className="w-[60px] h-[60px] rounded-full" />
                                     )}
-
-                                    {/* Message */}
                                     <div
                                         onClick={() => handleBotMessageClick(m)}
                                         className={`max-w-[60%] text-[14px] p-2 rounded-2xl mt-[20px] text-sm whitespace-pre-wrap leading-5 shadow-md ${
                                             m.bot
-                                                // ? 'bg-gray-200 text-left rounded-bl-none shadow-gray-400/90'
                                                 ? 'bg-white text-left rounded-bl-none shadow-gray-400/10'
                                                 : 'bg-blue-200 text-right rounded-br-none shadow-gray-400/90'
                                         }`}
                                     >
                                         <p>{m.bot ?? m.user}</p>
                                     </div>
-
-                                    {/* Avatar for User */}
                                     {!m.bot && (
                                         <img src={userAvatar} alt="User" className="w-[60px] h-[60px] rounded-full" />
                                     )}
                                 </div>
-                                {m.bot && (m.type === 'services' || m.type === 'projects') && <ServicesGrid contentType={m.type}/>}
-                                {m.bot && m.type === 'team'  && <TeamCards/>}
+
+                                {/* Apple-style clickable cards for bot's option message */}
+                                {m.bot && m.type === 'options' && (
+                                    <div className="flex flex-wrap gap-4 mt-4 ml-16">
+                                        <AnimatePresence>
+                                            {m.options?.map((option, j) => (
+                                                <motion.button
+                                                    key={j}
+                                                    initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                                                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                                                    exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                                                    transition={{ duration: 0.6, delay: j * 0.2 }}
+                                                    onClick={() => setInput(option)}
+                                                    className="w-[150px] h-[100px] bg-white border border-gray-100 rounded-xl text-sm font-medium shadow-md hover:shadow-lg hover:bg-gray-100 transition-all flex items-center justify-center text-center px-4 py-2"
+                                                >
+                                                    {option}
+                                                </motion.button>
+                                            ))}
+                                        </AnimatePresence>
+                                    </div>
+                                )}
+
+
+
+                                {m.bot && (m.type === 'services' || m.type === 'projects') && (
+                                    <ServicesGrid contentType={m.type} />
+                                )}
+                                {m.bot && m.type === 'team' && <TeamCards />}
                             </motion.div>
                         ))}
                     </AnimatePresence>
+
 
                     {isTyping && (
                         <motion.div
@@ -218,7 +260,8 @@ const Chat = () => {
             </div>
         </motion.div>
         </AnimatePresence>
+        </Page>
     );
 };
 
-export default Chat;
+export default ChatPage;

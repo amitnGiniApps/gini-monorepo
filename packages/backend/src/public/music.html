@@ -45,7 +45,7 @@
         .player-container,
         .gallery-section {
             width: 320px;
-            height: 60vh;
+            height: 38rem;
             background: linear-gradient(to bottom, #2e004d, #000);
             border-radius: 20px;
             padding: 20px;
@@ -113,42 +113,17 @@
         }
 
         .box {
-            transform: scaleY(.4);
             height: 100%;
             width: var(--boxSize);
             background: #a855f7;
-            animation-duration: 1.2s;
-            animation-timing-function: ease-in-out;
-            animation-iteration-count: infinite;
             border-radius: 8px;
+            animation: wave 1.2s ease-in-out infinite;
+            transform-origin: bottom;
         }
 
-        .box:nth-child(4n+1) { animation-name: quiet; }
-        .box:nth-child(4n+2) { animation-name: normal; }
-        .box:nth-child(4n+3) { animation-name: loud; }
-        .box:nth-child(4n)   { animation-name: quiet; }
-
-        @keyframes quiet {
-            25% { transform: scaleY(.3); }
-            50% { transform: scaleY(.2); }
-            75% { transform: scaleY(.4); }
-        }
-
-        @keyframes normal {
-            25% { transform: scaleY(.6); }
-            50% { transform: scaleY(.3); }
-            75% { transform: scaleY(.5); }
-        }
-
-        @keyframes loud {
-            25% { transform: scaleY(1); }
-            50% { transform: scaleY(.4); }
-            75% { transform: scaleY(1.2); }
-        }
-
-        .quiet-animation {
-            animation-name: null !important;
-            animation-fill-mode: forwards;
+        @keyframes wave {
+            0%, 100% { transform: scaleY(0.4); }
+            50% { transform: scaleY(1); }
         }
 
         .progress-bar {
@@ -200,10 +175,8 @@
             justify-content: space-between;
             font-size: 0.8rem;
             color: white;
-
         }
 
-        /* Tabs */
         .tab-menu {
             display: flex;
             justify-content: space-around;
@@ -217,12 +190,15 @@
             color: #aaa;
             cursor: pointer;
             position: relative;
+            transition: color 0.3s ease;
         }
 
+        .tab:hover,
         .tab.active {
             color: white;
         }
 
+        .tab:hover::after,
         .tab.active::after {
             content: '';
             position: absolute;
@@ -233,7 +209,6 @@
             background: #4cc9f0;
         }
 
-        /* Gallery cards */
         .scrolling-gallery {
             display: flex;
             gap: 15px;
@@ -281,7 +256,7 @@
             font-size: 1.8rem;
             color: #a855f7;
         }
-        /* Playlist section */
+
         .playlist-section {
             margin-top: 20px;
         }
@@ -315,13 +290,25 @@
             font-size: 1.1rem;
             color: #777;
             cursor: pointer;
+            border: 1px solid transparent;
+            border-radius: 50%;
+            padding: 3px;
+            transition: border 0.3s ease, color 0.3s ease;
+        }
+
+        .heart-icon:hover {
+            color: red;
+        }
+
+        .heart-icon.liked {
+            color: red;
         }
     </style>
 </head>
 <body>
 
-<!-- Music Player Section -->
-<div class="player-container" id="player-section">
+<!-- Player Section -->
+<div class="player-container" id="player-section" style="display: none;">
     <div class="top-bar">
         <button class="top-btn" onclick="goBack()"><i class="bi bi-chevron-left"></i></button>
         <div class="top-title">Now Playing</div>
@@ -340,14 +327,17 @@
         <div id="progress-filled" class="progress-filled"></div>
     </div>
     <div class="controls">
+        <button class="control-btn" onclick="restartTrack()"><i class="bi bi-arrow-counterclockwise"></i></button>
         <button class="control-btn" onclick="skip(-10)"><i class="bi bi-skip-start-fill"></i></button>
         <div class="play-button" onclick="togglePlay()"><i id="play-icon" class="bi bi-play-fill"></i></div>
         <button class="control-btn" onclick="skip(10)"><i class="bi bi-skip-end-fill"></i></button>
+        <button class="control-btn" onclick="shuffleTrack()"><i class="bi bi-shuffle"></i></button>
+        <button class="control-btn heart-icon" id="player-heart"><i class="bi bi-heart"></i></button>
     </div>
 </div>
 
 <!-- Gallery Section -->
-<div class="gallery-section" id="gallery-section" style="display: none;">
+<div class="gallery-section" id="gallery-section">
     <div class="top-bar">
         <button class="top-btn"><i class="bi bi-search"></i></button>
         <div class="top-title">Spotify</div>
@@ -378,6 +368,8 @@
             <i class="bi bi-play-circle-fill play-icon"></i>
         </div>
     </div>
+
+
     <div class="playlist-section">
         <div class="playlist-item">
             <div class="playlist-left">
@@ -431,6 +423,7 @@
                 <span class="playlist-time">3:24</span>
                 <i class="bi bi-heart heart-icon"></i>
             </div>
+        </div>
     </div>
 </div>
 
@@ -442,10 +435,13 @@
     const progressFilled = document.getElementById('progress-filled');
     const progressBar = document.querySelector('.progress-bar');
 
+    const container = document.getElementById('boxContainer');
     for (let i = 0; i < 30; i++) {
         const box = document.createElement('div');
-        box.classList.add('box', 'quiet-animation');
-        document.getElementById('boxContainer').appendChild(box);
+        box.style.animationPlayState = 'paused';
+        box.classList.add('box');
+        box.style.animationDelay = `${i * 0.05}s`;
+        container.appendChild(box);
     }
 
     const boxes = document.getElementsByClassName('box');
@@ -454,11 +450,15 @@
         if (audio.paused) {
             audio.play();
             playIcon.className = 'bi bi-pause-fill';
-            for (let box of boxes) box.classList.remove('quiet-animation');
+            for (let box of boxes) {
+                box.style.animationPlayState = 'running';
+            }
         } else {
             audio.pause();
             playIcon.className = 'bi bi-play-fill';
-            for (let box of boxes) box.classList.add('quiet-animation');
+            for (let box of boxes) {
+                box.style.animationPlayState = 'paused';
+            }
         }
     }
 
@@ -484,24 +484,71 @@
         audio.currentTime = percentage * audio.duration;
     }
 
+    function restartTrack() {
+        audio.currentTime = 0;
+    }
+
+    function shuffleTrack() {
+        alert("Shuffle not implemented — placeholder for future playlist shuffle logic.");
+    }
+
+    // Heart animation logic for player like button
+    const playerHeart = document.getElementById('player-heart');
+    playerHeart.addEventListener('click', () => {
+        const icon = playerHeart.querySelector('i');
+        icon.classList.toggle('liked');
+        if (icon.classList.contains('liked')) {
+            icon.classList.replace('bi-heart', 'bi-heart-fill');
+        } else {
+            icon.classList.replace('bi-heart-fill', 'bi-heart');
+        }
+    });
+
     function goBack() {
         document.getElementById('player-section').style.display = 'none';
         document.getElementById('gallery-section').style.display = 'flex';
+        if (!audio.paused) togglePlay()
     }
 
     function showPlayer() {
         document.getElementById('gallery-section').style.display = 'none';
         document.getElementById('player-section').style.display = 'flex';
+        togglePlay()
     }
 
-    audio.addEventListener('loadedmetadata', () => {
-        durationEl.textContent = formatTime(audio.duration);
+    // Heart toggle: icon fill + color
+    document.querySelectorAll('.heart-icon').forEach(icon => {
+        icon.addEventListener('click', () => {
+            if (icon.classList.contains('liked')) {
+                icon.classList.remove('liked');
+                icon.classList.replace('bi-heart-fill', 'bi-heart');
+            } else {
+                icon.classList.add('liked');
+                icon.classList.replace('bi-heart', 'bi-heart-fill');
+            }
+        });
     });
+
+    if (audio.readyState >= 1) {
+        durationEl.textContent = formatTime(audio.duration);
+    } else {
+        audio.addEventListener('loadedmetadata', () => {
+            durationEl.textContent = formatTime(audio.duration);
+        });
+    }
 
     audio.addEventListener('timeupdate', () => {
         currentTimeEl.textContent = formatTime(audio.currentTime);
         updateProgress();
     });
+
+    // Heart Animation
+    document.querySelectorAll('.heart-icon').forEach(heart => {
+        heart.addEventListener('click', () => {
+            heart.classList.toggle('clicked');
+        });
+    });
 </script>
+
 </body>
 </html>

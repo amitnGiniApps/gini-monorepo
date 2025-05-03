@@ -10,11 +10,11 @@ const utilList = {
         { name: "Chat", description: "Infrastructure", link: "chat-conversation-1" },
         { name: "Chat", description: "User-focused design", link: "chat-conversation-2" },
         { name: "Dashboard", description: "AI & ML tools", link: "dashboard-1" },
-        { name: "Dashboard", description: "AI & ML tools", link: "dashboard-2" },
+        { name: "Music App", description: "AI & ML tools", link: "music" },
         { name: "Tracking Map", description: "Expert strategy support", link: "track" }
     ],
     services: [
-        { name: "AI Project Templates & Ideas", description: "Frontend & backend", link: "/services/web" },
+        { name: "AI Projects Templates & Ideas", description: "Frontend & backend", link: "projects" },
         { name: "Documents creation", description: "iOS & Android", link: "document" },
         { name: "Online app checker", description: "Infrastructure", link: "diagnostic" },
         { name: "Gini information", description: "User-focused design", link: "/services/design" },
@@ -112,7 +112,7 @@ const ServicesGrid = ({contentType}:{contentType:string}) => {
                 >
                     <div
                         onClick={(e) => e.stopPropagation()}
-                        className="relative w-[90vw] h-[90vh] bg-white rounded-xl shadow-xl overflow-hidden"
+                        className="relative w-[90vw] h-[90vh] bg-transparent rounded-xl shadow-xl overflow-hidden flex justify-center "
                     >
                         <iframe
                             title="Generated HTML"

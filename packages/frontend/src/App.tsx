@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 
 import LoginPageReviewer from "./pages/LoginPageReviewer";
-import GiniAIPage from "./pages/AIPage.tsx";
+import ChatPage from "./pages/./ChatPage.tsx";
 import AdminPage from "./pages/Admin.tsx";
 import GeminiPage from "./pages/GeminiPage.tsx";
 import ServicesGrid from "./components/Services.tsx";
@@ -13,7 +13,7 @@ function App() {
         <Router>
             <Routes>
                 <Route path="/" element={<GeminiPage />} />
-                <Route path="/gini-ai" element={<GiniAIPage />} />
+                <Route path="/gini-ai" element={<ChatPage />} />
                 <Route path="/admin" element={<AdminPage />} />
                 <Route path="/services" element={<ServicesGrid />} />
                 <Route path="/review" element={<LoginPageReviewer />} />

@@ -125,7 +125,7 @@ export const landingPageSlides = [
     },
     {
         image:giniChat,
-        description: 'Know Gini using our AI Chat.',
+        description: 'Know Gini using our AI ChatPage.',
     },
     {
         image: giniSiteChecker,
