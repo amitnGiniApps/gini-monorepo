@@ -7,12 +7,11 @@ import {
   AlignmentType,
   HeadingLevel,
   Footer,
-  TableOfContents,
-  PageNumber,
-  PageBreak,
-  Numbering,
-  LevelFormat, FileChild,
+  PageNumber, Table, WidthType, TableRow, TableCell, ImageRun, Header,
 } from 'docx';
+import { readFileSync } from 'fs';
+import { resolve } from 'path';
+
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -43,10 +42,69 @@ async function generateWithOllama(data: DocInput): Promise<string> {
 }
 
 function saveAsDocx(data: DocInput, content: string) {
-  const today = new Date().toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
+  const today = new Date().toLocaleDateString('en-GB');
+
+  // === Load image from public directory ===
+  const logoPath = resolve(__dirname, '../public/logo.png'); // adjust if needed
+  const logoBuffer = readFileSync(logoPath);
+
+  // === Header with logo, title, and date ===
+  const headerTable = new Table({
+    width: { size: 100, type: WidthType.PERCENTAGE },
+    rows: [
+      new TableRow({
+        children: [
+          new TableCell({
+            children: [
+              new Paragraph({
+                children: [
+                  new ImageRun({
+                    data: logoBuffer,
+                    type: 'png',
+                    altText: {
+                      name: 'gini-logo',
+                      title: 'gini-logo',
+                      description: 'gini-logo',
+                    },
+                    transformation: {
+                      width: 80,
+                      height: 40,
+                    },
+                  }),
+                ],
+              }),
+            ],
+            width: { size: 20, type: WidthType.PERCENTAGE },
+          }),
+          new TableCell({
+            children: [
+              new Paragraph({
+                text: data.projectName,
+                alignment: AlignmentType.CENTER,
+                children: [new TextRun({ text: data.projectName, bold: true })],
+              }),
+            ],
+            width: { size: 60, type: WidthType.PERCENTAGE },
+          }),
+          new TableCell({
+            children: [
+              new Paragraph({
+                alignment: AlignmentType.RIGHT,
+                children: [new TextRun({ text: `Date: ${today}`, bold: true })],
+              }),
+            ],
+            width: { size: 20, type: WidthType.PERCENTAGE },
+          }),
+        ],
+      }),
+    ],
+  });
+
+  const header = new Header({
+    children: [
+      new Paragraph(''), // optional spacing
+      headerTable,
+    ],
   });
 
   const footer = new Footer({
@@ -62,9 +120,9 @@ function saveAsDocx(data: DocInput, content: string) {
     ],
   });
 
-  const children: FileChild[] = [];
+  const children: any[] = [];
 
-  // Cover Page
+  // === Cover Page ===
   children.push(
     new Paragraph({
       children: [new TextRun({ text: data.companyName, bold: true, size: 48 })],
@@ -83,14 +141,13 @@ function saveAsDocx(data: DocInput, content: string) {
     }),
   );
 
-  // Section Parsing
+  // === Content Sections ===
   const parts = content.split(/\r?\n(?=Purpose|Architecture|Features)/);
 
   parts.forEach((part) => {
     const [sectionTitle, ...rest] = part.trim().split(/\r?\n/);
     const sectionContentLines = rest.join('\n').split(/\r?\n/);
 
-    // Section Heading with page break
     children.push(
       new Paragraph({
         text: sectionTitle,
@@ -100,16 +157,12 @@ function saveAsDocx(data: DocInput, content: string) {
       }),
     );
 
-    // Section content: paragraphs + bullets
     sectionContentLines.forEach((line) => {
       if (line.startsWith('* ')) {
-        // Bullet point
         children.push(
           new Paragraph({
             text: line.replace(/^\* /, ''),
-            bullet: {
-              level: 0,
-            },
+            bullet: { level: 0 },
             spacing: { after: 100 },
           }),
         );
@@ -128,7 +181,7 @@ function saveAsDocx(data: DocInput, content: string) {
   const doc = new Document({
     sections: [
       {
-        properties: {},
+        headers: { default: header },
         footers: { default: footer },
         children,
       },
@@ -143,7 +196,6 @@ function saveAsDocx(data: DocInput, content: string) {
     return fullPath;
   });
 }
-
 export async function generateDocumentFile(data: DocInput): Promise<string> {
   try {
     const content = await generateWithOllama(data);
