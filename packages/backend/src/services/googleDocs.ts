@@ -7,11 +7,19 @@ import {
   AlignmentType,
   HeadingLevel,
   Footer,
-  PageNumber, Table, WidthType, TableRow, TableCell, ImageRun, Header,
+  PageNumber,
+  ImageRun,
+  Header,
+  BorderStyle,
+  WidthType,
+  TableCell,
+  TableRow,
+  Table,
+  VerticalAlign,
+  HeightRule,
 } from 'docx';
 import { readFileSync } from 'fs';
 import { resolve } from 'path';
-
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -43,67 +51,96 @@ async function generateWithOllama(data: DocInput): Promise<string> {
 
 function saveAsDocx(data: DocInput, content: string) {
   const today = new Date().toLocaleDateString('en-GB');
-
-  // === Load image from public directory ===
-  const logoPath = resolve(__dirname, '../public/logo.png'); // adjust if needed
+  const logoPath = resolve(__dirname, '../public/logo.png');
   const logoBuffer = readFileSync(logoPath);
 
-  // === Header with logo, title, and date ===
-  const headerTable = new Table({
-    width: { size: 100, type: WidthType.PERCENTAGE },
-    rows: [
-      new TableRow({
-        children: [
-          new TableCell({
+  const borderless = {
+    top: { size: 0, style: BorderStyle.NONE, color: 'FFFFFF' },
+    bottom: { size: 0, style: BorderStyle.NONE, color: 'FFFFFF' },
+    left: { size: 0, style: BorderStyle.NONE, color: 'FFFFFF' },
+    right: { size: 0, style: BorderStyle.NONE, color: 'FFFFFF' },
+  };
+
+  const header = new Header({
+    children: [
+      new Table({
+        width: { size: 9000, type: WidthType.DXA },
+        columnWidths: [2000, 5600, 1400],
+        alignment: AlignmentType.CENTER,
+        rows: [
+          new TableRow({
+            cantSplit: true,
+            height: {
+              value: 600,
+              rule: HeightRule.EXACT,
+            },
             children: [
-              new Paragraph({
+              new TableCell({
+                width: { size: 1600, type: WidthType.DXA },
+                borders: borderless,
+                verticalAlign: VerticalAlign.BOTTOM,
                 children: [
-                  new ImageRun({
-                    data: logoBuffer,
-                    type: 'png',
-                    altText: {
-                      name: 'gini-logo',
-                      title: 'gini-logo',
-                      description: 'gini-logo',
-                    },
-                    transformation: {
-                      width: 80,
-                      height: 40,
-                    },
+                  new Paragraph({
+                    alignment: AlignmentType.LEFT,
+                    children: [
+                      new ImageRun({
+                        data: logoBuffer,
+                        type: 'png',
+                        transformation: { width: 120, height: 50 },
+                        altText: { name: 'gini-logo', title: 'gini-logo', description: 'gini-logo' },
+                      }),
+                    ],
+                  }),
+                ],
+              }),
+              new TableCell({
+                width: { size: 5800, type: WidthType.DXA },
+                borders: borderless,
+                verticalAlign: VerticalAlign.BOTTOM,
+                children: [
+                  new Paragraph({
+                    alignment: AlignmentType.CENTER,
+                    spacing: { before: 0, after: 0 },
+                    children: [new TextRun({ text: 'Gini-Apps', bold: true, size: 26 })],
+                  }),
+                  new Paragraph({
+                    alignment: AlignmentType.CENTER,
+                    spacing: { before: 10, after: 0 },
+                    children: [new TextRun({ text: data.projectName, bold: true, size: 28 })],
+                  }),
+                ],
+              }),
+              new TableCell({
+                width: { size: 1400, type: WidthType.DXA },
+                borders: borderless,
+                verticalAlign: VerticalAlign.BOTTOM,
+                children: [
+                  new Paragraph({
+                    alignment: AlignmentType.LEFT,
+                    spacing: { before: 0, after: 0 },
+                    children: [new TextRun({ text: `Date: ${today}`, size: 22 })],
                   }),
                 ],
               }),
             ],
-            width: { size: 20, type: WidthType.PERCENTAGE },
-          }),
-          new TableCell({
-            children: [
-              new Paragraph({
-                text: data.projectName,
-                alignment: AlignmentType.CENTER,
-                children: [new TextRun({ text: data.projectName, bold: true })],
-              }),
-            ],
-            width: { size: 60, type: WidthType.PERCENTAGE },
-          }),
-          new TableCell({
-            children: [
-              new Paragraph({
-                alignment: AlignmentType.RIGHT,
-                children: [new TextRun({ text: `Date: ${today}`, bold: true })],
-              }),
-            ],
-            width: { size: 20, type: WidthType.PERCENTAGE },
           }),
         ],
       }),
-    ],
-  });
-
-  const header = new Header({
-    children: [
-      new Paragraph(''), // optional spacing
-      headerTable,
+      new Paragraph({
+        spacing: { before: 0, after: 0 },
+        border: {
+          bottom: {
+            color: '000000',
+            space: 1,
+            style: BorderStyle.SINGLE,
+            size: 6,
+          },
+        },
+      }),
+      new Paragraph({
+        children: [],
+        spacing: { after: 200 },
+      }),
     ],
   });
 
@@ -120,35 +157,110 @@ function saveAsDocx(data: DocInput, content: string) {
     ],
   });
 
-  const children: any[] = [];
+  // === Cover Page Section ===
+  const coverSection = {
+    headers: { default: header },
+    footers: { default: footer },
+    properties: {
+      page: {
+        margin: {
+          top: 720,
+          bottom: 720,
+          left: 1440,
+          right: 1440,
+        },
+      },
+    },
+    children: [
+      // Reduced vertical padding to avoid extra page
+      ...Array(6).fill(new Paragraph({ children: [], spacing: { after: 200 } })),
 
-  // === Cover Page ===
-  children.push(
-    new Paragraph({
-      children: [new TextRun({ text: data.companyName, bold: true, size: 48 })],
-      alignment: AlignmentType.CENTER,
-      spacing: { after: 300 },
-    }),
-    new Paragraph({
-      children: [new TextRun({ text: data.projectName, size: 36 })],
-      alignment: AlignmentType.CENTER,
-      spacing: { after: 200 },
-    }),
-    new Paragraph({
-      children: [new TextRun({ text: today, color: '888888', size: 24 })],
-      alignment: AlignmentType.CENTER,
-      spacing: { after: 500 },
-    }),
-  );
+      new Paragraph({
+        children: [new TextRun({ text: data.companyName, bold: true, size: 48 })],
+        alignment: AlignmentType.CENTER,
+        spacing: { after: 300 },
+      }),
+      new Paragraph({
+        children: [new TextRun({ text: data.projectName, size: 36 })],
+        alignment: AlignmentType.CENTER,
+        spacing: { after: 200 },
+      }),
+      new Paragraph({
+        children: [new TextRun({ text: today, color: '888888', size: 24 })],
+        alignment: AlignmentType.CENTER,
+        spacing: { after: 200 },
+      }),
 
-  // === Content Sections ===
+      // === Spacer before version table ===
+      new Paragraph({ children: [], spacing: { after: 200 } }),
+
+      // === Centered Version Table with Padding ===
+      new Table({
+        width: { size: 8000, type: WidthType.DXA },
+        columnWidths: [4000, 4000],
+        alignment: AlignmentType.CENTER,
+        rows: [
+          new TableRow({
+            children: [
+              new TableCell({
+                shading: { fill: 'EDEDED' },
+                margins: { top: 100, bottom: 100, left: 200, right: 200 },
+                children: [
+                  new Paragraph({
+                    alignment: AlignmentType.CENTER,
+                    children: [new TextRun({ text: 'Version', bold: true })],
+                  }),
+                ],
+              }),
+              new TableCell({
+                shading: { fill: 'EDEDED' },
+                margins: { top: 100, bottom: 100, left: 200, right: 200 },
+                children: [
+                  new Paragraph({
+                    alignment: AlignmentType.CENTER,
+                    children: [new TextRun({ text: 'Date', bold: true })],
+                  }),
+                ],
+              }),
+            ],
+          }),
+          new TableRow({
+            children: [
+              new TableCell({
+                margins: { top: 100, bottom: 100, left: 200, right: 200 },
+                children: [
+                  new Paragraph({
+                    alignment: AlignmentType.CENTER,
+                    children: [new TextRun({ text: '1.0 - WIP' })],
+                  }),
+                ],
+              }),
+              new TableCell({
+                margins: { top: 100, bottom: 100, left: 200, right: 200 },
+                children: [
+                  new Paragraph({
+                    alignment: AlignmentType.CENTER,
+                    children: [new TextRun({ text: today })],
+                  }),
+                ],
+              }),
+            ],
+          }),
+        ],
+      }),
+    ],
+  };
+
+  // === Content Section ===
+  const contentChildren: any[] = [];
+
   const parts = content.split(/\r?\n(?=Purpose|Architecture|Features)/);
 
   parts.forEach((part) => {
     const [sectionTitle, ...rest] = part.trim().split(/\r?\n/);
     const sectionContentLines = rest.join('\n').split(/\r?\n/);
 
-    children.push(
+    contentChildren.push(
       new Paragraph({
         text: sectionTitle,
         heading: HeadingLevel.HEADING_1,
@@ -159,7 +271,7 @@ function saveAsDocx(data: DocInput, content: string) {
 
     sectionContentLines.forEach((line) => {
       if (line.startsWith('* ')) {
-        children.push(
+        contentChildren.push(
           new Paragraph({
             text: line.replace(/^\* /, ''),
             bullet: { level: 0 },
@@ -167,7 +279,7 @@ function saveAsDocx(data: DocInput, content: string) {
           }),
         );
       } else if (line.trim()) {
-        children.push(
+        contentChildren.push(
           new Paragraph({
             text: line.trim(),
             alignment: AlignmentType.JUSTIFIED,
@@ -178,14 +290,14 @@ function saveAsDocx(data: DocInput, content: string) {
     });
   });
 
+  const contentSection = {
+    headers: { default: header },
+    footers: { default: footer },
+    children: contentChildren,
+  };
+
   const doc = new Document({
-    sections: [
-      {
-        headers: { default: header },
-        footers: { default: footer },
-        children,
-      },
-    ],
+    sections: [coverSection, contentSection],
   });
 
   if (!fs.existsSync(OUTPUT_DIR)) fs.mkdirSync(OUTPUT_DIR);
@@ -196,6 +308,7 @@ function saveAsDocx(data: DocInput, content: string) {
     return fullPath;
   });
 }
+
 export async function generateDocumentFile(data: DocInput): Promise<string> {
   try {
     const content = await generateWithOllama(data);
@@ -207,12 +320,3 @@ export async function generateDocumentFile(data: DocInput): Promise<string> {
     throw err;
   }
 }
-
-// Example use
-/*
-generateDocumentFile({
-  companyName: 'Gini Dev',
-  projectName: 'AI Onboarding Assistant',
-  description: 'This project automates onboarding for new developers using an AI-powered chat and document system.',
-});
-*/
