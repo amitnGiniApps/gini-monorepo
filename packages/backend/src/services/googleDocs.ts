@@ -49,6 +49,22 @@ async function generateWithOllama(data: DocInput): Promise<string> {
   return response.data.response;
 }
 
+function sanitizeFileName(name: string) {
+  return name.replace(/[^a-z0-9_\-]/gi, '_');
+}
+
+function getUniqueFilePath(baseDir: string, baseName: string, ext: string): string {
+  let version = 1;
+  let filePath = path.join(baseDir, `${baseName}.${ext}`);
+
+  while (fs.existsSync(filePath)) {
+    version++;
+    filePath = path.join(baseDir, `${baseName}_v${version}.${ext}`);
+  }
+
+  return filePath.toLowerCase();
+}
+
 function saveAsDocx(data: DocInput, content: string) {
   const today = new Date().toLocaleDateString('en-GB');
   const logoPath = resolve(__dirname, '../public/logo.png');
@@ -76,7 +92,7 @@ function saveAsDocx(data: DocInput, content: string) {
             },
             children: [
               new TableCell({
-                width: { size: 1600, type: WidthType.DXA },
+                width: { size: 1800, type: WidthType.DXA },
                 borders: borderless,
                 verticalAlign: VerticalAlign.BOTTOM,
                 children: [
@@ -86,7 +102,7 @@ function saveAsDocx(data: DocInput, content: string) {
                       new ImageRun({
                         data: logoBuffer,
                         type: 'png',
-                        transformation: { width: 120, height: 50 },
+                        transformation: { width: 120, height: 40 },
                         altText: { name: 'gini-logo', title: 'gini-logo', description: 'gini-logo' },
                       }),
                     ],
@@ -301,7 +317,9 @@ function saveAsDocx(data: DocInput, content: string) {
   });
 
   if (!fs.existsSync(OUTPUT_DIR)) fs.mkdirSync(OUTPUT_DIR);
-  const fullPath = path.join(OUTPUT_DIR, FILE_NAME);
+
+  const sanitizedBaseName = sanitizeFileName(`${data.companyName}_${data.projectName}`);
+  const fullPath = getUniqueFilePath(OUTPUT_DIR, sanitizedBaseName, 'docx');
 
   return Packer.toBuffer(doc).then((buffer) => {
     fs.writeFileSync(fullPath, buffer);
