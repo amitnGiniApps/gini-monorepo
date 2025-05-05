@@ -9,7 +9,7 @@ const utilList = {
         { name: "Map", description: "iOS & Android", link: "map2" },
         { name: "Chat", description: "Infrastructure", link: "chat-conversation-1" },
         { name: "Chat", description: "User-focused design", link: "chat-conversation-2" },
-        { name: "Dashboard", description: "AI & ML tools", link: "dashboard-1" },
+        { name: "Dashboard", description: "AI & ML tools", link: "dashboard-2" },
         { name: "Music App", description: "AI & ML tools", link: "music" },
         { name: "Tracking Map", description: "Expert strategy support", link: "track" }
     ],

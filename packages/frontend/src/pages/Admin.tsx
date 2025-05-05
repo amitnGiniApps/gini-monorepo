@@ -7,6 +7,7 @@ import {
 } from '@mui/material';
 import { Edit, Delete, Save, Cancel } from '@mui/icons-material';
 import axios from 'axios';
+import Page from "./Page.tsx";
 
 const AdminPage: React.FC = () => {
   const [updates, setUpdates] = useState<string[]>([]);
@@ -95,7 +96,8 @@ const AdminPage: React.FC = () => {
   };
 
   return (
-      <Container width="80%" sx={{ mt: 6 }}>
+      <Page>
+      <Container width="80%">
         <Typography variant="h4" fontWeight="bold" gutterBottom>
           Admin Panel
         </Typography>
@@ -208,6 +210,7 @@ const AdminPage: React.FC = () => {
           </DialogActions>
         </Dialog>
       </Container>
+      </Page>
   );
 };
 

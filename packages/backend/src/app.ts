@@ -175,12 +175,19 @@ app.post('/chat', async (req, res) => {
     return res.json({ reply: 'The services list:', type: 'services', data: structuredResponses.services });
   }
   if (lowerPrompt.includes('projects')) {
-
     return res.json({ reply: 'The Projects list:', type: 'projects', data: structuredResponses.projects });
   }
   if (lowerPrompt.includes('team')) {
-
     return res.json({ reply: 'Our best team:', type: 'team', data: structuredResponses.projects });
+  }
+
+  if (lowerPrompt.includes('clients')) {
+    console.log('Customers');
+    return res.json({ reply: 'Our Clients', type: 'clients', data: structuredResponses.projects });
+  }
+  if (lowerPrompt.includes('flow')) {
+    console.log('flow');
+    return res.json({ reply: 'Project Flow', type: 'flow', data: structuredResponses.projects });
   }
 
   // Otherwise, fallback to AI response

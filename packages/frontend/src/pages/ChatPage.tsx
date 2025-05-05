@@ -6,10 +6,15 @@ import ServicesGrid from "../components/Services.tsx";
 import TeamCards from "../components/UsersCards.tsx";
 
 import {Message} from '../types/index.ts'
-import chatBackground from '../assets/cover.avif';
+
 import botAvatar from '../assets/gini-avatar-9.png';
+import chatBackground from '../assets/bg-4.png';
+// import chatBackground from '../assets/cover.avif';
 import userAvatar from '../assets/userAvatar1.png';
+
 import giniBot from "../assets/gini-avatar-0.png";
+import Customers from "../components/Companies.tsx";
+import FlowChartCore from '../components/FlowCards.tsx'
 
 
 
@@ -24,8 +29,9 @@ const ChatPage = () => {
     const controllerRef = useRef<AbortController | null>(null);
     const bottomRef = useRef<HTMLDivElement | null>(null);
 
-    const sendMessage = async () => {
-        if (!input.trim()) return;
+    const sendMessage = async (option:string) => {
+        if (!input.trim() && option.length ===0) return;
+        console.log(option)
 
         const userMessage = { user: input };
         setMessages((prev) => [...prev, userMessage]);
@@ -42,7 +48,7 @@ const ChatPage = () => {
             const res = await fetch('http://localhost:3020/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: input }),
+                body: JSON.stringify({ message: input || option }),
                 signal: controller.signal
             });
 
@@ -107,18 +113,9 @@ const ChatPage = () => {
     }, [messages, isTyping]);
 
     useEffect(() => {
-        // Initial greeting message
         setMessages([
             {
-                bot: "Hello, I'm Gini Bot. I can help you with:",
-                type: 'options',
-                options: [
-                    'Show me Gini Lead Team',
-                    'Talk to support',
-                    'See Services list',
-                    'Audit my Web Site',
-                    'View Ai Template Projects',
-                ]
+                bot: "Hello, i'm Gino - Gini Intelligence Neuron Originator",
             }
         ]);
     }, []);
@@ -126,9 +123,42 @@ const ChatPage = () => {
 
     return (
         <Page className="bg-gradient-to-b from-[#f9fafb] to-[#e9ecf1]">
+        {/*  suggestion list  */}
         <div className="bg-no-repeat bg-contain bg-bottom"
              style={{flex: '0.5', alignSelf:'stretch', backgroundImage: `url(${giniBot})` }}
         >
+            {/* Suggestion List - Apple-style flat bubble cards */}
+            <AnimatePresence>
+                <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 10 }}
+                    transition={{ duration: 0.7 }}
+                    className="flex flex-wrap gap-3 px-6 pt-6"
+                >
+                    {[
+                        'Show me Gini Lead Team',
+                        'Talk to support',
+                        'Our Clients',
+                        'See Services list',
+                        'Audit my Web Site',
+                        'View Ai Template Projects'
+                    ].map((suggestion, i) => (
+                        <motion.button
+                            key={i}
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ duration: 0.3, delay: i * 0.1 }}
+                            onClick={() => sendMessage(suggestion)}
+                            className="border border-gray-200 bg-white text-gray-800 px-4 py-2 text-xs text-center rounded-full shadow-sm backdrop-blur-sm cursor-pointer transition-all duration-300 hover:shadow-xl hover:scale-[1.05] hover:bg-gray-50"
+
+                        >
+                            {suggestion}
+                        </motion.button>
+                    ))}
+                </motion.div>
+            </AnimatePresence>
+
         </div>
 
         <AnimatePresence mode="wait">
@@ -143,12 +173,12 @@ const ChatPage = () => {
                 flex: '1 0 55%',
                 height: 'auto'
             }}
-            className="w-[600px] h-[600px] max-h-[80vh] flex flex-col rounded-[12px] bg-[#e7f0f9] shadow-sm overflow-hidden z-40 mr-[20px]"
+            className="w-[600px] h-[600px] max-h-[80vh] flex flex-col rounded-[12px] bg-blue-100 overflow-hidden z-40 mr-[20px]"
         >
             {/* Messages Area */}
             <div
                 style={{ backgroundImage: `url(${chatBackground})` }}
-                className="relative flex-1 overflow-y-auto bg-no-repeat bg-contain bg-top"
+                className="relative flex-1 overflow-y-auto bg-no-repeat bg-contain bg-center"
             >
                 <div className="absolute inset-0 bg-green-100/20 z-0" />
                 <div className="relative z-10 px-4 space-y-2">
@@ -168,7 +198,7 @@ const ChatPage = () => {
                                     )}
                                     <div
                                         onClick={() => handleBotMessageClick(m)}
-                                        className={`max-w-[60%] text-[14px] p-2 rounded-2xl mt-[20px] text-sm whitespace-pre-wrap leading-5 shadow-md ${
+                                        className={`max-w-[100%] text-[14px] p-2 rounded-2xl mt-[20px] text-sm whitespace-pre-wrap leading-5 shadow-md ${
                                             m.bot
                                                 ? 'bg-white text-left rounded-bl-none shadow-gray-400/10'
                                                 : 'bg-blue-200 text-right rounded-br-none shadow-gray-400/90'
@@ -192,7 +222,7 @@ const ChatPage = () => {
                                                     animate={{ opacity: 1, scale: 1, y: 0 }}
                                                     exit={{ opacity: 0, scale: 0.95, y: 10 }}
                                                     transition={{ duration: 0.6, delay: j * 0.2 }}
-                                                    onClick={() => setInput(option)}
+                                                    onClick={() => sendMessage(option).then()}
                                                     className="w-[150px] h-[100px] bg-white border border-gray-100 rounded-xl text-sm font-medium shadow-md hover:shadow-lg hover:bg-gray-100 transition-all flex items-center justify-center text-center px-4 py-2"
                                                 >
                                                     {option}
@@ -201,13 +231,12 @@ const ChatPage = () => {
                                         </AnimatePresence>
                                     </div>
                                 )}
-
-
-
                                 {m.bot && (m.type === 'services' || m.type === 'projects') && (
                                     <ServicesGrid contentType={m.type} />
                                 )}
                                 {m.bot && m.type === 'team' && <TeamCards />}
+                                {m.bot && m.type === 'clients' && <Customers />}
+                                {m.bot && m.type === 'flow' && <FlowChartCore />}
                             </motion.div>
                         ))}
                     </AnimatePresence>
@@ -244,7 +273,7 @@ const ChatPage = () => {
                     onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
                 />
                 <button
-                    className="bg-green-600 text-white px-6 py-2 text-sm font-medium rounded-full shadow-lg hover:shadow-xl transition-all duration-200"
+                    className="bg-black text-white px-6 py-2 text-sm font-medium rounded-full shadow-lg hover:shadow-xl transition-all duration-200"
                     onClick={sendMessage}
                 >
                     Send
