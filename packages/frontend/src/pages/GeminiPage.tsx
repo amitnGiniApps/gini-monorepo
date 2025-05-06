@@ -44,6 +44,11 @@ const slideInFromRight = {
 const GeminiPage = () => {
     const [currentSlide, setCurrentSlide] = useState(0);
     const [imageLoaded, setImageLoaded] = useState(false);
+    const [userName, setUserName] = useState(() => {
+        return localStorage.getItem("userName") || "";
+    });
+    const [showError, setShowError] = useState(false);
+
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -53,6 +58,19 @@ const GeminiPage = () => {
         }, 20000);
         return () => clearInterval(interval);
     }, []);
+
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setUserName(e.target.value);
+    };
+
+    const handleStart = () => {
+        if (userName.trim()) {
+            localStorage.setItem("userName", userName.trim());
+            navigate("/gini-ai");
+        } else {
+            setShowError(true);
+        }
+    };
 
     const typedText = useTypingEffect(
         landingPageSlides[currentSlide].description,
@@ -89,16 +107,35 @@ const GeminiPage = () => {
                             Start Your App with <span className="font-semibold text-black">Gini AI</span>. Bring It to
                             Life with <span className="font-semibold text-black">Us</span>.
                         </motion.p>
-                        <motion.button
-                            onClick={() => navigate("/gini-ai")}
-                            className="px-6 py-3 mt-[10px] text-white bg-black/80 rounded-xl hover:bg-black shadow-lg text-lg font-medium tracking-wide"
-                            variants={slideInFromLeft}
-                        >
-                            Let’s Start
-                        </motion.button>
+
+                        <motion.div>
+                            <motion.input
+                                className={`block rounded-2xl px-5 py-2 text-sm bg-gray-50 placeholder-gray-400 focus:outline-none focus:ring-2 transition ${
+                                    showError && userName.trim() === ""
+                                        ? "border border-red-400 focus:ring-red-400"
+                                        : "border border-gray-200 focus:ring-blue-400"
+                                }`}
+                                onChange={handleInputChange}
+                                value={userName}
+                                placeholder="Enter your name"
+                                variants={slideInFromLeft}
+                            />
+                            <motion.p
+                                className={`${showError && userName.trim() === "" ? 'text-red-500': 'text-transparent'} text-sm italic`}
+                                variants={slideInFromLeft}
+                            >
+                                Please enter your name to continue.
+                            </motion.p>
+                            <motion.button
+                                onClick={handleStart}
+                                className="px-6 py-1 mt-[10px] text-white bg-black/80 rounded-xl hover:bg-black shadow-lg text-lg font-medium tracking-wide"
+                                variants={slideInFromLeft}
+                            >
+                                Let’s Start
+                            </motion.button>
+                        </motion.div>
                     </motion.div>
                 </motion.div>
-
                 {/* Right Section */}
                 <AnimatePresence mode="wait">
                     <motion.div

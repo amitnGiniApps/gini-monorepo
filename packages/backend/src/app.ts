@@ -5,12 +5,15 @@ import cors from 'cors';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import bodyParser from 'body-parser';
 import path from 'path';
-import { promises as fs } from 'fs';
+import { promises } from 'fs';
+import fs from 'fs';
 import { exec } from 'child_process';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import axios from 'axios';
 import { config } from 'dotenv';
 import gptRouter from './routes/gptRouter';
+import { generateChatSessionId, getChatFilePath, loadChatHistory, saveChatHistory } from './util/chatUtils';
+import { generateChatSummary } from './services/generateChatSummary';
 // import { createDocFile } from './services/docBuilder';
 
 config();
@@ -39,7 +42,7 @@ app.get('/api/v1/generate/:filename', async (req, res) => {
   const filePath = path.join(__dirname, 'public', filename);
 
   try {
-    await fs.access(filePath);
+    await promises.access(filePath);
     res.sendFile(filePath);
   } catch {
     res.status(404).send('File not found');
@@ -47,7 +50,7 @@ app.get('/api/v1/generate/:filename', async (req, res) => {
 });
 
 async function rebuildModelled() {
-  const systemContentRaw = await fs.readFile(SYSTEM_PATH, 'utf-8');
+  const systemContentRaw = await promises.readFile(SYSTEM_PATH, 'utf-8');
   const staticContentEndIndex = systemContentRaw.indexOf('**Model Information**');
   if (staticContentEndIndex === -1) throw new Error('Static system intro not found.');
 
@@ -72,7 +75,7 @@ PARAMETER temperature 1.2
 SYSTEM """\n${fullSystem}\n"""
 `.trim();
 
-  await fs.writeFile(MODELFILE_PATH, modelfileContent, 'utf-8');
+  await promises.writeFile(MODELFILE_PATH, modelfileContent, 'utf-8');
 }
 
 async function recreateOllamaModel() {
@@ -89,7 +92,7 @@ async function recreateOllamaModel() {
 }
 
 async function loadUpdates() {
-  const systemContentRaw = await fs.readFile(SYSTEM_PATH, 'utf-8');
+  const systemContentRaw = await promises.readFile(SYSTEM_PATH, 'utf-8');
   const modelInfoStart = systemContentRaw.indexOf('**Model Information**');
   if (modelInfoStart === -1) throw new Error('Model Information section not found.');
 
@@ -98,7 +101,7 @@ async function loadUpdates() {
 }
 
 async function saveUpdates(updatesArray: string[]) {
-  const systemContentRaw = await fs.readFile(SYSTEM_PATH, 'utf-8');
+  const systemContentRaw = await promises.readFile(SYSTEM_PATH, 'utf-8');
   const modelInfoStart = systemContentRaw.indexOf('**Model Information**');
   if (modelInfoStart === -1) throw new Error('Model Information section not found.');
 
@@ -112,24 +115,28 @@ ${staticIntro}
 ${updatesArray.join('\n\n')}
 `.trim();
 
-  await fs.writeFile(SYSTEM_PATH, rebuiltSystemTxt + '\n', 'utf-8');
+  await promises.writeFile(SYSTEM_PATH, rebuiltSystemTxt + '\n', 'utf-8');
+}
+
+export const HISTORY_DIR = path.join(__dirname, 'chats');
+// Ensure the history directory exists
+if (!fs.existsSync(HISTORY_DIR)) {
+  fs.mkdirSync(HISTORY_DIR);
 }
 
 app.post('/chat', async (req, res) => {
-  const userPrompt = req.body.message;
+  const { username, chatSessionId: incomingId, message: userPrompt } = req.body;
 
-  if (!userPrompt) {
-    return res.status(400).json({ error: 'No message provided' });
+  if (!username || !userPrompt) {
+    return res.status(400).json({ error: 'Missing username or message' });
   }
 
-  // Define your structured data responses
+  const chatSessionId = incomingId || generateChatSessionId(username);
+  const filePath = getChatFilePath(username, chatSessionId);
+
+  // Rule-based responses
   const structuredResponses = {
-    services: [
-      'Web Development',
-      'Mobile App Development',
-      'Cloud Infrastructure',
-      'DevOps Consulting',
-    ],
+    services: ['Web Development', 'Mobile App Development', 'Cloud Infrastructure', 'DevOps Consulting'],
     projects: [
       { name: 'Project Alpha', description: 'E-commerce platform' },
       { name: 'Project Beta', description: 'Real-time chat app' },
@@ -138,43 +145,53 @@ app.post('/chat', async (req, res) => {
 
   const lowerPrompt = userPrompt.toLowerCase();
   if (lowerPrompt.includes('services')) {
-    return res.json({ reply: 'The services list:', type: 'services', data: structuredResponses.services });
+    return res.json({ chatSessionId, reply: 'The services list:', type: 'services', data: structuredResponses.services });
   }
   if (lowerPrompt.includes('projects')) {
-    return res.json({ reply: 'The Projects list:', type: 'projects', data: structuredResponses.projects });
+    return res.json({ chatSessionId, reply: 'The Projects list:', type: 'projects', data: structuredResponses.projects });
   }
   if (lowerPrompt.includes('team')) {
-    return res.json({ reply: 'Our best team:', type: 'team', data: structuredResponses.projects });
+    return res.json({ chatSessionId, reply: 'Our best team:', type: 'team', data: structuredResponses.projects });
   }
-
   if (lowerPrompt.includes('clients')) {
-    console.log('Customers');
-    return res.json({ reply: 'Our Clients', type: 'clients', data: structuredResponses.projects });
+    return res.json({ chatSessionId, reply: 'Our Clients', type: 'clients', data: structuredResponses.projects });
   }
   if (lowerPrompt.includes('flow')) {
-    console.log('flow');
-    return res.json({ reply: 'Project Flow', type: 'flow', data: structuredResponses.projects });
+    return res.json({ chatSessionId, reply: 'Project Flow', type: 'flow', data: structuredResponses.projects });
   }
 
-  // Otherwise, fallback to AI response
+  const chatHistory = loadChatHistory(filePath);
+  chatHistory.push({ role: 'user', content: userPrompt });
+
   try {
-    const response = await axios.post('http://localhost:11434/api/generate', {
+    const response = await axios.post('http://localhost:11434/api/chat', {
       model: MODEL_NAME,
-      prompt: userPrompt,
+      messages: chatHistory,
       stream: false,
     });
 
-    if (response.data && response.data.response) {
-      res.json({ reply: response.data.response, box: true });
+    const botReply = response.data.message?.content || response.data.response;
+
+    if (botReply) {
+      chatHistory.push({ role: 'assistant', content: botReply });
+      saveChatHistory(filePath, chatHistory);
+
+      if (botReply.includes('Got it! We’re ready to help')) {
+        generateChatSummary(chatSessionId, username); // don't await — fire-and-forget
+      }
+
+      return res.json({ chatSessionId, reply: botReply, box: true });
     } else {
       console.error('Unexpected Ollama response:', response.data);
-      res.status(502).json({ error: 'Invalid response from Ollama' });
+      return res.status(502).json({ error: 'Invalid response from Ollama' });
     }
-  } catch (error: unknown) {
-    console.error('Error querying Ollama:', error);
-    res.status(500).json({ error: 'Failed to query Ollama' });
+
+  } catch (error) {
+    console.error('Error querying Ollama:', (error as any).message || error);
+    return res.status(500).json({ error: 'Failed to query Ollama' });
   }
 });
+
 
 app.get('/list-model-info', async (req, res) => {
   try {
@@ -272,5 +289,35 @@ app.post('/delete-model-info', async (req, res) => {
 //     res.status(500).send('Failed to create document');
 //   }
 // });
+
+// Path to your folder with JSONs
+const summaryDir = path.join(__dirname, 'summary');
+
+app.get('/summaries', (req, res) => {
+  fs.readdir(summaryDir, (err, files) => {
+    if (err) {
+      return res.status(500).json({ error: 'Could not read summary folder' });
+    }
+
+    const jsonFiles = files.filter(file => path.extname(file) === '.json');
+
+    const summaries: any[] = [];
+
+    jsonFiles.forEach((file, index) => {
+      const filePath = path.join(summaryDir, file);
+      const content = fs.readFileSync(filePath, 'utf8');
+      try {
+        summaries.push(JSON.parse(content));
+      } catch (e) {
+        console.warn(`Skipping invalid JSON: ${file}`);
+      }
+
+      // Send response after reading all files
+      if (index === jsonFiles.length - 1) {
+        res.json(summaries);
+      }
+    });
+  });
+});
 
 export default app;

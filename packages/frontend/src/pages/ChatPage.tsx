@@ -8,7 +8,7 @@ import TeamCards from "../components/UsersCards.tsx";
 import Customers from "../components/Companies.tsx";
 import FlowChartCore from '../components/FlowCards.tsx';
 
-import { Message } from '../types/index.ts';
+import {Message} from '../types'
 
 import botAvatar from '../assets/gini-avatar-9.png';
 import chatBackground from '../assets/bg-4.png';
@@ -26,9 +26,12 @@ const ChatPage = () => {
     const [diagnosticChat, setDiagnosticChat] = useState(false);
 
 
+    const [sessionId, setSessionId]  = useState('')
     const intervalRef = useRef<NodeJS.Timeout | number>(0);
     const controllerRef = useRef<AbortController | null>(null);
     const bottomRef = useRef<HTMLDivElement | null>(null);
+    console.log(messages)
+    const username = localStorage.getItem('userName')
 
     const sendMessage = async (option: string) => {
         if (!input.trim() && option.length === 0) return;
@@ -47,12 +50,13 @@ const ChatPage = () => {
             const res = await fetch('http://localhost:3020/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: input || option }),
+                body: JSON.stringify({ message: input || option, username, chatSessionId: sessionId }),
                 signal: controller.signal
             });
 
             const data = await res.json();
             const reply = data.reply;
+            setSessionId(data.chatSessionId)
 
             setTimeout(() => setIsTyping(false), 200);
 
@@ -110,7 +114,9 @@ const ChatPage = () => {
 
     useEffect(() => {
         setMessages([
-            { bot: "Hello, i'm Gino - Gini Intelligence Neuron Originator" }
+            {
+                bot: `Hello${username ? ` ${username}`: ''}, i'm Gino - Gini Intelligence Neuron Originator`,
+            }
         ]);
     }, []);
 

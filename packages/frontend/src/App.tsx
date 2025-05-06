@@ -7,6 +7,7 @@ import GeminiPage from "./pages/GeminiPage.tsx";
 import ServicesGrid from "./components/Services.tsx";
 
 import './App.css';
+import SummaryPage from "./pages/SummaryPage.tsx";
 
 function App() {
     return (
@@ -17,6 +18,7 @@ function App() {
                 <Route path="/admin" element={<AdminPage />} />
                 <Route path="/services" element={<ServicesGrid />} />
                 <Route path="/review" element={<AppDiagnostic />} />
+                <Route path="/admin/summaries" element={<SummaryPage />} />
                 <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
         </Router>
