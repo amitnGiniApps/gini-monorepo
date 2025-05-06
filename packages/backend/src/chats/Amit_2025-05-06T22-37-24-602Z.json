@@ -1,0 +1,74 @@
+[
+  {
+    "role": "user",
+    "content": "hi"
+  },
+  {
+    "role": "assistant",
+    "content": "Hi there! How can I help you today?"
+  },
+  {
+    "role": "user",
+    "content": "i need a developer"
+  },
+  {
+    "role": "assistant",
+    "content": "Okay! What role are you looking to fill? (e.g., mobile, QA, DevOps)"
+  },
+  {
+    "role": "user",
+    "content": "frontend developer"
+  },
+  {
+    "role": "assistant",
+    "content": "Okay, a frontend developer. What is the team size you’re looking for, or are you looking for a single developer?"
+  },
+  {
+    "role": "user",
+    "content": "single"
+  },
+  {
+    "role": "assistant",
+    "content": "Got it! A single frontend developer. What work model are you looking for? (remote, hybrid, on-site)"
+  },
+  {
+    "role": "user",
+    "content": "on site"
+  },
+  {
+    "role": "assistant",
+    "content": "Okay, on-site. When would you like to start the project? (timeline)"
+  },
+  {
+    "role": "user",
+    "content": "9 weeks"
+  },
+  {
+    "role": "assistant",
+    "content": "Okay, 9 weeks. How long do you need the service for? (duration, e.g., 3 months)"
+  },
+  {
+    "role": "user",
+    "content": "4"
+  },
+  {
+    "role": "assistant",
+    "content": "Okay, 4 months. Full. Now, could you please provide your full name, email, company name, company location, and phone number (optional)?\n"
+  },
+  {
+    "role": "user",
+    "content": "amitlevi, amitlevi@gmail.com, mindeprde, italy"
+  },
+  {
+    "role": "assistant",
+    "content": "Okay, Amitlevi, amitlevi@gmail.com, Mindeprde, Italy. Full. Let’s confirm – you’re looking for a single on-site frontend developer to start in 9 weeks for a duration of 4 months. Is that correct?\n"
+  },
+  {
+    "role": "user",
+    "content": "yes"
+  },
+  {
+    "role": "assistant",
+    "content": "Got it! We’re capturing the details and will follow up."
+  }
+]

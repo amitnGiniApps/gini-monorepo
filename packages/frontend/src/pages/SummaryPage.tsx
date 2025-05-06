@@ -17,7 +17,7 @@ import Page from './Page';
 
 const SummaryPage = () => {
     const [summaries, setSummaries] = useState([]);
-    const [selected, setSelected] = useState(null);
+    const [selected, setSelected] = useState<any | null>(null);
     const [open, setOpen] = useState(false);
 
     const theme = useTheme();
@@ -39,20 +39,54 @@ const SummaryPage = () => {
         setSelected(null);
     };
 
-    const renderPreview = (obj: any) => {
-        return Object.entries(obj)
-            .slice(0, 3)
-            .map(([key, value]) => (
-                <Typography key={key} variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
-                    <strong>{formatKey(key)}:</strong> {Array.isArray(value) ? value.join(', ') : String(value)}
-                </Typography>
-            ));
-    };
-
     const formatKey = (key: string) => {
         return key
             .replace(/([A-Z])/g, ' $1')
             .replace(/^./, (str) => str.toUpperCase());
+    };
+
+    const renderPreview = (summary: any) => {
+        const userPreview = summary.user
+            ? [
+                ['Full Name', summary.user.fullName],
+                ['Email', summary.user.email],
+                ['Company', summary.user.companyName],
+            ]
+            : [];
+
+        const requestPreview = summary.request
+            ? [['Service Type', summary.request.serviceType], ['Work Model', summary.request.workModel]]
+            : [];
+
+        return [...userPreview, ...requestPreview].map(([label, value]) => (
+            <Typography key={label} variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
+                <strong>{label}:</strong> {Array.isArray(value) ? value.join(', ') : String(value)}
+            </Typography>
+        ));
+    };
+
+    const renderDetails = (obj: any) => {
+        return Object.entries(obj).map(([sectionKey, sectionValue]) => (
+            <Box key={sectionKey} mb={3}>
+                <Typography variant="h6" sx={{ mb: 1 }}>
+                    {formatKey(sectionKey)}
+                </Typography>
+                {typeof sectionValue === 'object' && sectionValue !== null ? (
+                    Object.entries(sectionValue).map(([key, value]) => (
+                        <Box key={key} mb={1}>
+                            <Typography variant="subtitle2" color="text.secondary">
+                                {formatKey(key)}
+                            </Typography>
+                            <Typography variant="body1">
+                                {Array.isArray(value) ? value.join(', ') : String(value)}
+                            </Typography>
+                        </Box>
+                    ))
+                ) : (
+                    <Typography variant="body1">{String(sectionValue)}</Typography>
+                )}
+            </Box>
+        ));
     };
 
     return (
@@ -63,11 +97,11 @@ const SummaryPage = () => {
                 </Typography>
 
                 <Grid container spacing={3}>
-                    {summaries.map((item, idx) => (
+                    {summaries.map((item: any, idx) => (
                         <Grid item xs={12} sm={6} md={4} key={idx}>
                             <Card elevation={3} sx={{ borderRadius: 2 }}>
                                 <CardHeader
-                                    title={`Item #${idx + 1}`}
+                                    title={item.user?.fullName || item.user?.email || `Summary #${idx + 1}`}
                                     titleTypographyProps={{ variant: 'h6' }}
                                     sx={{
                                         backgroundColor: theme.palette.grey[100],
@@ -95,17 +129,7 @@ const SummaryPage = () => {
                         Summary Details
                     </DialogTitle>
                     <DialogContent dividers>
-                        {selected &&
-                            Object.entries(selected).map(([key, value]) => (
-                                <Box key={key} mb={2}>
-                                    <Typography variant="subtitle2" color="text.secondary">
-                                        {formatKey(key)}
-                                    </Typography>
-                                    <Typography variant="body1">
-                                        {Array.isArray(value) ? value.join(', ') : String(value)}
-                                    </Typography>
-                                </Box>
-                            ))}
+                        {selected && renderDetails(selected)}
                     </DialogContent>
                 </Dialog>
             </Box>

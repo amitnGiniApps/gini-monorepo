@@ -176,7 +176,7 @@ app.post('/chat', async (req, res) => {
       chatHistory.push({ role: 'assistant', content: botReply });
       saveChatHistory(filePath, chatHistory);
 
-      if (botReply.includes('Got it! We’re ready to help')) {
+      if (botReply.includes('Got it! We’re capturing the details and will follow up.')) {
         generateChatSummary(chatSessionId, username); // don't await — fire-and-forget
       }
 
