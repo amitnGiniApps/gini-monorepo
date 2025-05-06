@@ -30,6 +30,9 @@ const Page = ({ children, className }: { children: ReactNode, className?: string
                     <a className={navLinkClass("/admin")} onClick={() => navigate("/admin")}>
                         Admin
                     </a>
+                    <a className={navLinkClass("/admin/summaries")} onClick={() => navigate("/admin/summaries")}>
+                        Admin summaries (users requests)
+                    </a>
                     <button onClick={() => navigate("/")}
                             className="bg-black text-white px-4 py-1.5 rounded-lg text-sm hover:opacity-90">
                         Sign Up
@@ -38,7 +41,7 @@ const Page = ({ children, className }: { children: ReactNode, className?: string
             </header>
 
             <main className={`flex flex-1 flex-row justify-center items-center py-4 pl-[4px] ${className}`}>
-                {children}
+            {children}
             </main>
 
             <footer
