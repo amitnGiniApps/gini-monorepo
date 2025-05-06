@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 
-import LoginPageReviewer from "./pages/LoginPageReviewer";
+import AppDiagnostic from "./pages/AppDiagnostic.tsx";
 import ChatPage from "./pages/./ChatPage.tsx";
 import AdminPage from "./pages/Admin.tsx";
 import GeminiPage from "./pages/GeminiPage.tsx";
@@ -16,7 +16,7 @@ function App() {
                 <Route path="/gini-ai" element={<ChatPage />} />
                 <Route path="/admin" element={<AdminPage />} />
                 <Route path="/services" element={<ServicesGrid />} />
-                <Route path="/review" element={<LoginPageReviewer />} />
+                <Route path="/review" element={<AppDiagnostic />} />
                 <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
         </Router>

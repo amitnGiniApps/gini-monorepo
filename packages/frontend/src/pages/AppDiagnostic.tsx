@@ -10,7 +10,7 @@ const loadingSteps = [
     'Finalizing Audit Report',
 ];
 
-export default function LoginPageReviewer() {
+const AppDiagnostic=()=> {
     const [url, setUrl] = useState('');
     // const [userEmail, setUserEmail] = useState('');
     const [loading, setLoading] = useState(false);
@@ -67,7 +67,6 @@ export default function LoginPageReviewer() {
     };
 
     return (
-        // <div className="h-[100%] flex flex-1 flex-row justify-center items-center py-4 pl-[4px]">
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -149,6 +148,7 @@ export default function LoginPageReviewer() {
                         )}
                 </AnimatePresence>
             </motion.div>
-        // </div>
     );
 }
+
+export default AppDiagnostic;

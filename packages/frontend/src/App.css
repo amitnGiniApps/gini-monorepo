@@ -12,3 +12,9 @@
   text-align: center;
 }
 /**/
+div.custom-override-container .custom-docx-wrapper {
+  /* Your overrides here */
+  background: transparent !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+}

@@ -2,6 +2,9 @@ import { Request, Response } from 'express';
 import { generateProject } from '../services/generateProject';
 import { reviewLoginPageFromUrl } from '../services/reviewLoginPageFromUrl';
 import { sendAuditReport } from '../services/sendAuditReport';
+import { generateDocumentFile } from '../services/googleDocs';
+import path from 'path';
+
 
 export const generateProjectController = async (req: Request, res:Response):Promise<any>=> {
   const formData = req.body as FormData;
@@ -17,7 +20,6 @@ export const generateProjectController = async (req: Request, res:Response):Prom
 
 export const siteReviewController = async (req: Request, res:Response) => {
   const { siteUrl } = req.body;
-  console.log(siteUrl);
 
   if (!siteUrl) {
     return res.status(400).json({ error: 'Invalid input. Please provide a valid site url.' });
@@ -45,3 +47,26 @@ export const sendReportController = async (req: Request, res: Response) => {
     res.status(500).json({ error: 'Failed to send report' });
   }
 };
+
+export const docxFileController = async (req: Request, res: Response) => {
+  try {
+    const { companyName, projectName, description } = req.body;
+
+    if (!projectName || !description) {
+      return res.status(400).json({ error: 'projectName and description are required' });
+    }
+
+    // Generate the document
+    await generateDocumentFile({ companyName, projectName, description });
+
+    // Path to the generated file
+    const filePath = path.resolve(__dirname, '../../output/project_document.docx');
+
+    // Return the file to the client
+    return res.download(filePath, `${projectName}-report.docx`);
+  } catch (error: any) {
+    console.error('❌ Error sending report:', error.message);
+    res.status(500).json({ error: 'Failed to generate or send report' });
+  }
+};
+

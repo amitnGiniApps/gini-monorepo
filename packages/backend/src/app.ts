@@ -2,14 +2,16 @@ import express from 'express';
 import morgan from 'morgan';
 import helmet from 'helmet';
 import cors from 'cors';
+// eslint-disable-next-line import/no-extraneous-dependencies
 import bodyParser from 'body-parser';
 import path from 'path';
 import { promises as fs } from 'fs';
 import { exec } from 'child_process';
+// eslint-disable-next-line import/no-extraneous-dependencies
 import axios from 'axios';
 import { config } from 'dotenv';
 import gptRouter from './routes/gptRouter';
-import { createDocFile } from './services/docBuilder';
+// import { createDocFile } from './services/docBuilder';
 
 config();
 
@@ -26,42 +28,6 @@ app.use(express.json());
 app.use(bodyParser.json());
 
 app.use('/api/v2', gptRouter);
-
-app.get('/api/v1/generate/map', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public/map1.html'));
-});
-
-app.get('/api/v1/generate/map2', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public/map2.html'));
-});
-
-app.get('/api/v1/generate/map3', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public/map3.html'));
-});
-
-app.get('/api/v1/generate/calendar', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public/calendar.html'));
-});
-
-app.get('/api/v1/generate/dashboard1', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public/dashboard-1.html'));
-});
-
-app.get('/api/v1/generate/dashboard2', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public/dashboard-2.html'));
-});
-
-app.get('/api/v1/generate/chat1', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public/chat-conversation-1.html'));
-});
-
-app.get('/api/v1/generate/chat2', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public/chat-conversation-2.html'));
-});
-
-app.get('/api/v1/generate/track', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public/track.html'));
-});
 
 app.get('/api/v1/generate/:filename', async (req, res) => {
   let { filename } = req.params;
@@ -80,7 +46,7 @@ app.get('/api/v1/generate/:filename', async (req, res) => {
   }
 });
 
-async function rebuildModelfile() {
+async function rebuildModelled() {
   const systemContentRaw = await fs.readFile(SYSTEM_PATH, 'utf-8');
   const staticContentEndIndex = systemContentRaw.indexOf('**Model Information**');
   if (staticContentEndIndex === -1) throw new Error('Static system intro not found.');
@@ -94,6 +60,7 @@ async function rebuildModelfile() {
 ${staticIntro}
 
 **Model Information**
+
 ${numberedUpdates}
 `.trim();
 
@@ -169,7 +136,6 @@ app.post('/chat', async (req, res) => {
     ],
   };
 
-  // Simple rule-based intent detection (replace with LLM classifier if needed)
   const lowerPrompt = userPrompt.toLowerCase();
   if (lowerPrompt.includes('services')) {
     return res.json({ reply: 'The services list:', type: 'services', data: structuredResponses.services });
@@ -228,7 +194,7 @@ app.post('/add-model-info', async (req, res) => {
     const updates = await loadUpdates();
     updates.push(newInfo.trim());
     await saveUpdates(updates);
-    await rebuildModelfile();
+    await rebuildModelled();
     await recreateOllamaModel();
     res.json({ message: 'Info added and model updated.' });
   } catch (error) {
@@ -255,7 +221,7 @@ app.post('/edit-model-info', async (req, res) => {
     updates[index] = newInfo.trim();
 
     await saveUpdates(updates);
-    await rebuildModelfile();
+    await rebuildModelled();
     await recreateOllamaModel();
 
     res.json({ message: 'Info edited and model updated successfully.' });
@@ -279,7 +245,7 @@ app.post('/delete-model-info', async (req, res) => {
     updates.splice(index, 1);
 
     await saveUpdates(updates);
-    await rebuildModelfile();
+    await rebuildModelled();
     await recreateOllamaModel();
 
     res.json({ message: 'Info deleted and model updated.' });
@@ -289,23 +255,22 @@ app.post('/delete-model-info', async (req, res) => {
   }
 });
 
-app.post('/test-doc', async (req, res) => {
-  console.log('test doc');
-  try {
-    const filename = 'test-document.docx';
-    const filePath = await createDocFile(filename);
-
-    res.download(filePath, filename, (err) => {
-      if (!err) {
-        // fs.unlinkSync(filePath); // delete after sending
-      } else {
-        console.error('Download error:', err);
-      }
-    });
-  } catch (err) {
-    console.error(err);
-    res.status(500).send('Failed to create document');
-  }
-});
+// app.post('/test-doc', async (req, res) => {
+//   try {
+//     const filename = 'test-document.docx';
+//     const filePath = await createDocFile(filename);
+//
+//     res.download(filePath, filename, (err) => {
+//       if (!err) {
+//         // fs.unlinkSync(filePath); // delete after sending
+//       } else {
+//         console.error('Download error:', err);
+//       }
+//     });
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).send('Failed to create document');
+//   }
+// });
 
 export default app;

@@ -4,6 +4,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import instagram from '../assets/instagram.avif'
 import linkedin from '../assets/linkedin.avif'
 import facebook from '../assets/facenook.avif'
+import favicon from '../assets/giniNewLogo.svg'
 
 const Page = ({ children, className }: { children: ReactNode, className?: string }) => {
     const navigate = useNavigate();
@@ -17,14 +18,10 @@ const Page = ({ children, className }: { children: ReactNode, className?: string
         }`;
 
     return (
-        <div className="flex flex-col min-h-screen bg-gray-50 relative shadow-white-400/100">
+        <div className="flex flex-col min-h-screen bg-gray-50 relative shadow-white-400/100 overflow-hidden">
             <header className="bg-white border-b border-gray-100 shadow-sm px-6 py-4 flex items-center justify-between">
                 <div onClick={() => navigate("/")} className="flex cursor-pointer items-center gap-2">
-                    <div
-                        className="w-8 h-8 rounded-full bg-green-600 text-white flex items-center justify-center font-semibold text-sm">
-                        G
-                    </div>
-                    <span className="text-lg font-semibold text-black">Gini AI</span>
+                    <img src={favicon} alt="gini logo" className=" h-[32px] rounded-full"/>
                 </div>
                 <nav className="hidden md:flex items-center gap-6 text-sm text-gray-600">
                     <a className={navLinkClass("/gini-ai")} onClick={() => navigate("/gini-ai")}>
@@ -48,13 +45,13 @@ const Page = ({ children, className }: { children: ReactNode, className?: string
                 className="bg-gray-50 relative shadow-white-400/100 shadow z-20 text-sm flex flex-col items-center px-6 py-3 text-center">
                 <div className="flex gap-6">
                     <a href="https://www.instagram.com/gini_apps.studio/" target="_blank" rel="noopener noreferrer" aria-label="Twitter">
-                        <img src={instagram} className="w-[41px] h-[41px] rounded-full"/>
+                        <img src={instagram} className="w-[30px] h-[30px] rounded-full"/>
                     </a>
                     <a href="https://il.linkedin.com/company/gini-apps.com" target="_blank" rel="noopener noreferrer" aria-label="Twitter">
-                        <img src={linkedin} className="w-[41px] h-[41px] rounded-full"/>
+                        <img src={linkedin} className="w-[30px] h-[30px] rounded-full"/>
                     </a>
                     <a href="https://www.facebook.com/GiniApps/" target="_blank" rel="noopener noreferrer" aria-label="Twitter">
-                        <img src={facebook} className="w-[41px] h-[41px] rounded-full"/>
+                        <img src={facebook} className="w-[30px] h-[30px] rounded-full"/>
                     </a>
                 </div>
                 <a href="https://www.gini-apps.com/blank-3" target="_blank" className="mt-2 mb-1 border-b-1 border-black">Terms of Use & Privacy Policy for this Website</a>

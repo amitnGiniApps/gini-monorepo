@@ -1,0 +1,18 @@
+/**/
+.test .docx-wrapper {
+    /* Your overrides here */
+    background: white !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+
+    backdrop-filter: blur(8px) !important;
+    background-color: rgba(255, 255, 255, 0.85) !important;
+}
+.test {
+    /* Your overrides here */
+    background: white !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    backdrop-filter: blur(8px) !important;
+    background-color: rgba(255, 255, 255, 0.85) !important;
+}

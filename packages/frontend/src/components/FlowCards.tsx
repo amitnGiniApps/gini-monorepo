@@ -14,170 +14,113 @@ import { motion } from 'framer-motion';
 const descriptions = {
     Plan: {
         title: 'Discovery & Planning',
-        details: 'Understanding the problem, gathering a team, setting goals and timelines.'
     },
-    Develops: {
+    design: {
         title: 'UI/UX Design',
-        details: 'Designing wireframes, prototypes, and user flows to ensure a smooth experience.'
     },
-    Test: {
+    Developer: {
         title: 'Development',
-        details: 'Coding features, integrating systems, and writing unit tests.'
     },
-    Deploy: {
+    QA: {
         title: 'Testing & QA',
-        details: 'Running tests, fixing bugs, and validating the application quality.'
     },
-    Review: {
+    DEVOPS: {
         title: 'Deployment to Production',
-        details: 'Deploying the final product to production environments with monitoring.'
     },
     Done: {
         title: 'Post-Launch Support',
-        details: 'Providing maintenance, support, and gathering user feedback.'
     },
 };
 
-const initialNodes =[
+const roles = {
+    Plan: 'PM',
+    design: 'Designer',
+    Developer: 'Developer',
+    QA: 'QA Engineer',
+    DEVOPS: 'DevOps',
+    Done: 'Support'
+};
+
+const initialNodes = [
     {
-        "id": "1",
-        "position": {
-            "x": -359.55244159693507,
-            "y": -228.14960273941628
+        id: "1",
+        position: { x: -359, y: -228 },
+        data: {
+            label: "Discovery & Planning",
+            label1: "Plan",
+            status: "done",
+            index: 0,
+            avatarUrl: "https://i.pravatar.cc/40?u=1"
         },
-        "data": {
-            "label": "Discovery & Planning",
-            "label1": "Plan",
-            "status": "done",
-            "index": 0
-        },
-        "draggable": true,
-        "className": "!border-0 !p-0",
-        "width": 150,
-        "height": 58,
-        "selected": false,
-        "positionAbsolute": {
-            "x": -359.55244159693507,
-            "y": -228.14960273941628
-        },
-        "dragging": false
+        draggable: false,
+        className: "!border-0 !p-0",
     },
     {
-        "id": "2",
-        "position": {
-            "x": -468.1931877063355,
-            "y": -128.37485636958024
+        id: "2",
+        position: { x: -468, y: -128 },
+        data: {
+            label: "UI/UX Design",
+            label1: "design",
+            status: "done",
+            index: 1,
+            avatarUrl: "https://i.pravatar.cc/40?u=2"
         },
-        "data": {
-            "label": "UI/UX Design",
-            "label1": "Develops",
-            "status": "done",
-            "index": 1
-        },
-        "draggable": true,
-        "className": "!border-0 !p-0",
-        "width": 150,
-        "height": 38,
-        "selected": false,
-        "positionAbsolute": {
-            "x": -468.1931877063355,
-            "y": -128.37485636958024
-        },
-        "dragging": false
+        draggable: false,
+        className: "!border-0 !p-0",
     },
     {
-        "id": "3",
-        "position": {
-            "x": -333.260523561741,
-            "y": -51.5350404248845
+        id: "3",
+        position: { x: -333, y: -51 },
+        data: {
+            label: "Development",
+            label1: "Developer",
+            status: "done",
+            index: 2,
+            avatarUrl: "https://i.pravatar.cc/40?u=3"
         },
-        "data": {
-            "label": "Development",
-            "label1": "Develops",
-            "status": "done",
-            "index": 2
-        },
-        "draggable": true,
-        "className": "!border-0 !p-0",
-        "width": 150,
-        "height": 38,
-        "selected": false,
-        "positionAbsolute": {
-            "x": -333.260523561741,
-            "y": -51.5350404248845
-        },
-        "dragging": false
+        draggable: false,
+        className: "!border-0 !p-0",
     },
     {
-        "id": "4",
-        "position": {
-            "x": -459.88485495969826,
-            "y": 7.381599357505422
+        id: "4",
+        position: { x: -459, y: 7 },
+        data: {
+            label: "Testing & QA",
+            label1: "QA",
+            status: "done",
+            index: 3,
+            avatarUrl: "https://i.pravatar.cc/40?u=4"
         },
-        "data": {
-            "label": "Testing & QA",
-            "label1": "Testing",
-            "status": "done",
-            "index": 3
-        },
-        "draggable": true,
-        "className": "!border-0 !p-0",
-        "width": 150,
-        "height": 38,
-        "selected": false,
-        "positionAbsolute": {
-            "x": -459.88485495969826,
-            "y": 7.381599357505422
-        },
-        "dragging": false
+        draggable: false,
+        className: "!border-0 !p-0",
     },
     {
-        "id": "5",
-        "position": {
-            "x": -297.69099395899286,
-            "y": 58.664967919353046
+        id: "5",
+        position: { x: -297, y: 58 },
+        data: {
+            label: "Deployment to Production",
+            label1: "DEVOPS",
+            status: "done",
+            index: 4,
+            avatarUrl: "https://i.pravatar.cc/40?u=5"
         },
-        "data": {
-            "label": "Deployment to Production",
-            "label1": "Deploy",
-            "status": "done",
-            "index": 4
-        },
-        "draggable": true,
-        "className": "!border-0 !p-0",
-        "width": 150,
-        "height": 58,
-        "selected": true,
-        "positionAbsolute": {
-            "x": -297.69099395899286,
-            "y": 58.664967919353046
-        },
-        "dragging": false
+        draggable: false,
+        className: "!border-0 !p-0",
     },
     {
-        "id": "6",
-        "position": {
-            "x": -466.90504672614577,
-            "y": 137.07448202752158
+        id: "6",
+        position: { x: -466, y: 137 },
+        data: {
+            label: "Post-Launch Support",
+            label1: "Done",
+            status: "done",
+            index: 5,
+            avatarUrl: "https://i.pravatar.cc/40?u=6"
         },
-        "data": {
-            "label": "Post-Launch Support",
-            "label1": "Done",
-            "status": "done",
-            "index": 5
-        },
-        "draggable": true,
-        "className": "!border-0 !p-0",
-        "width": 150,
-        "height": 58,
-        "selected": false,
-        "positionAbsolute": {
-            "x": -466.90504672614577,
-            "y": 137.07448202752158
-        },
-        "dragging": false
+        draggable: false,
+        className: "!border-0 !p-0",
     }
-]
+];
 
 const initialEdges = [
     { id: 'e1-2', source: '1', target: '2', animated: true },
@@ -196,24 +139,32 @@ const NodeComponent = ({ data }: any) => {
         <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{
-                duration: 0.5,
-                ease: 'easeOut',
-                delay: data.index * 0.2,
-            }}
-            className={`group text-sm px-4 py-2 relative text-center rounded-2xl ${bgClass} shadow-sm backdrop-blur-sm`}
+            transition={{ duration: 0.5, ease: 'easeOut', delay: data.index * 0.2 }}
+            className={`text-sm px-4 py-2 relative text-center rounded-2xl ${bgClass} shadow-sm backdrop-blur-sm w-max`}
         >
-            <div className="font-medium">{data.label}</div>
-            <div className="absolute top-full mt-2 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition bg-gray-900 text-white text-xs rounded px-2 py-1 shadow z-10">
-                {`Step: ${data.label}`}
+            <div className="font-medium text-left whitespace-normal break-words w-max">
+                {data.label}
             </div>
             <Handle type="target" position={Position.Top} />
             <Handle type="source" position={Position.Bottom} />
+            {data.avatarUrl && (
+                <div className="absolute -right-18 top-5 transform -translate-y-1/2 flex flex-col items-center">
+                    <img
+                        src={data.avatarUrl}
+                        alt="avatar"
+                        className="w-8 h-8 rounded-full border border-white shadow"
+                    />
+                    <div className="mt-1 text-xs text-gray-700 w-max whitespace-nowrap">
+                        {roles[data.label1] || "Team Member"}
+                    </div>
+                </div>
+            )}
         </motion.div>
     );
 };
 
 const nodeTypes = { default: NodeComponent };
+
 
 const FlowChartCore = () => {
     const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
@@ -226,7 +177,7 @@ const FlowChartCore = () => {
         title: 'Unknown',
         details: 'No description available.',
     };
-    console.log(nodes)
+
     const updateBotPosition = (index: number) => {
         const actualIndex = index >= nodes.length ? nodes.length - 1 : index;
         const node = nodes[actualIndex];
@@ -240,11 +191,6 @@ const FlowChartCore = () => {
         const botY = nodeRect.top - containerRect.top - 100;
         setBotPos({ x: botX, y: botY });
     };
-    //
-    // useEffect(() => {
-    //     const timeout = setTimeout(() => updateBotPosition(currentIndex), 100);
-    //     return () => clearTimeout(timeout);
-    // }, [nodes, currentIndex]);
 
     const handleNextStep = () => {
         const isFinalNode = currentIndex === nodes.length - 1;
@@ -286,19 +232,19 @@ const FlowChartCore = () => {
     };
 
     return (
-        <div className="w-[70%] mx-auto h-[450px] flex flex-col items-center bg-gray-50 relative overflow-hidden">
+        <div className="w-[70%] mx-auto h-[450px] flex flex-col items-center bg-gray-50 relative overflow-hidden rounded-2xl">
             {/* Floating Buttons */}
-            <div className="mb-4 flex gap-3 z-20 absolute bg-white right-[20px] p-6 top-[0]">
+            <div className="mb-2 flex gap-3 z-20 absolute bg-white left-[0px] bottom-[0] p-6 ">
                 <button
                     onClick={handleNextStep}
-                    className="bg-blue-500 text-white px-4 py-1.5 rounded-xl hover:bg-blue-600 transition disabled:opacity-50 text-sm font-medium shadow-sm"
+                    className="bg-blue-500 text-white px-2 py-1.5 rounded-xl hover:bg-blue-600 transition disabled:opacity-50 text-[12px] font-medium shadow-sm"
                     disabled={currentIndex > nodes.length}
                 >
                     Next Step
                 </button>
                 <button
                     onClick={handleRestart}
-                    className="bg-gray-200 text-gray-800 px-4 py-1.5 rounded-xl hover:bg-gray-300 transition text-sm font-medium shadow-sm"
+                    className="bg-gray-200 text-gray-800 px-4 py-1.5 rounded-xl hover:bg-gray-300 transition text-[12px] font-medium shadow-sm"
                 >
                     Restart
                 </button>
@@ -312,26 +258,12 @@ const FlowChartCore = () => {
 
             {/* Main React Flow Canvas */}
             <div className="flex w-full h-full border border-gray-200 rounded-2xl shadow-md bg-white p-4 relative">
-                {/* Bot */}
-                {/*<div*/}
-                {/*    style={{*/}
-                {/*        transform: `translate(${botPos.x}px, ${botPos.y}px)`,*/}
-                {/*        transition: 'transform 0.6s ease-in-out',*/}
-                {/*    }}*/}
-                {/*    className="absolute z-50 pointer-events-none"*/}
-                {/*>*/}
-                {/*    <img src={giniBot} height={40} width={40} alt="gini-bot" />*/}
-                {/*</div>*/}
-
                 <ReactFlow
                     nodes={nodes}
                     edges={edges}
                     onNodesChange={onNodesChange}
                     onEdgesChange={onEdgesChange}
                     fitView
-
-                    // defaultViewport={{ x: -200, y: 0, zoom: 1 }} // Important: ensures top-left anchor
-
                     nodeTypes={nodeTypes}
                     panOnDrag={true}
                     panOnScroll={false}

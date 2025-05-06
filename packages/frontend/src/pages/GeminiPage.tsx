@@ -61,7 +61,8 @@ const GeminiPage = () => {
     );
 
     return (
-        <Page className="items-center bg-gradient-to-b from-[#f9fafb] to-[#e9ecf1] text-gray-800">
+        <Page className="items-center bg-gradient-to-r from-[#F7F7F7] via-[#F5F8F2] to-[#F7F7F7] text-gray-800">
+
             <motion.div
                 className="w-full max-w-7xl px-4 md:px-16 py-[10px] flex flex-col md:flex-row gap-16 justify-between self-start"
                 variants={containerVariants}
@@ -77,7 +78,7 @@ const GeminiPage = () => {
                         className="text-base mt-6 text-gray-500 font-semibold uppercase tracking-widest"
                         variants={slideInFromLeft}
                     >
-                        Welcome to Gini-Apps
+                        Welcome to Gini-AI
                     </motion.p>
 
                     <motion.div className="mt-10 space-y-6" variants={slideInFromLeft}>
@@ -85,7 +86,8 @@ const GeminiPage = () => {
                             className="text-gray-700 text-[24px] max-w-md font-light italic leading-7"
                             variants={slideInFromLeft}
                         >
-                            Start Your App with <span className="font-semibold text-black">Gini AI</span>. Bring It to Life with <span className="font-semibold text-black">Us</span>.
+                            Start Your App with <span className="font-semibold text-black">Gini AI</span>. Bring It to
+                            Life with <span className="font-semibold text-black">Us</span>.
                         </motion.p>
                         <motion.button
                             onClick={() => navigate("/gini-ai")}
@@ -112,17 +114,17 @@ const GeminiPage = () => {
                             alt="Gini Visual"
                             className="w-full max-w-[500px] rounded-3xl shadow-2xl object-cover"
                             onLoad={() => setTimeout(() => setImageLoaded(true), 300)}
-                            initial={{ opacity: 0, x: 40 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ duration: 1.1, ease: "easeInOut" }}
+                            initial={{opacity: 0, x: 40}}
+                            animate={{opacity: 1, x: 0}}
+                            transition={{duration: 1.1, ease: "easeInOut"}}
                         />
 
                         {imageLoaded && (
                             <motion.div
                                 className="absolute -bottom-14 w-[620px] bg-white/60 text-gray-800 p-5 rounded-3xl shadow-2xl backdrop-blur-lg flex items-start gap-4"
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ duration: 0.8, ease: "easeInOut", delay: 0.3 }}
+                                initial={{opacity: 0, y: 20}}
+                                animate={{opacity: 1, y: 0}}
+                                transition={{duration: 0.8, ease: "easeInOut", delay: 0.3}}
                             >
                                 <img
                                     src={giniAvatar}
