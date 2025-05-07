@@ -1,6 +1,5 @@
-import { useState, useEffect } from 'react';
+import {memo, useState} from 'react';
 import ReactFlow, {
-    Controls,
     useNodesState,
     useEdgesState,
     Background,
@@ -285,4 +284,4 @@ const FlowChart = () => (
     </ReactFlowProvider>
 );
 
-export default FlowChart;
+export default memo(FlowChart);

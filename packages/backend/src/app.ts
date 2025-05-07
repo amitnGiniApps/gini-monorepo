@@ -176,7 +176,7 @@ app.post('/chat', async (req, res) => {
       chatHistory.push({ role: 'assistant', content: botReply });
       saveChatHistory(filePath, chatHistory);
 
-      if (botReply.includes('Got it! We’re capturing the details and will follow up.')) {
+      if (botReply.includes('Got it! We’re capturing the details and will follow up.') || botReply.includes('Would you like to talk to someone from our team, or keep going here?')) {
         generateChatSummary(chatSessionId, username); // don't await — fire-and-forget
       }
 
@@ -318,6 +318,26 @@ app.get('/summaries', (req, res) => {
       }
     });
   });
+});
+
+app.post('/create/summary', async (req, res) => {
+  const { sessionId, username } = req.body;
+
+  if (!sessionId || !username) {
+    return res.status(400).json({ error: 'Missing sessionId or username' });
+  }
+
+  try {
+    const result = await generateChatSummary(sessionId, username);
+    if (result.success) {
+      return res.status(200).json({ message: 'Summary generated successfully' });
+    } else {
+      return res.status(500).json({ error: result.error });
+    }
+  } catch (err) {
+    console.error('Summary route error:', err);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
 });
 
 export default app;

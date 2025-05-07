@@ -1,0 +1,58 @@
+[
+  {
+    "role": "user",
+    "content": "What does Gini-Apps do?"
+  },
+  {
+    "role": "assistant",
+    "content": "Gini-Apps offers end-to-end product development services, including mobile, web, and AI solutions. It specializes in mobile development, UX/UI design, backend services, and outsourcing."
+  },
+  {
+    "role": "user",
+    "content": "What are some notable products Gini has delivered?"
+  },
+  {
+    "role": "assistant",
+    "content": "Gini-Apps has delivered Ynet’s top-ranked mobile index (10M+ downloads), Pango (smart parking), E-vrit (Israel’s biggest digital bookstore), The Lotter, and One."
+  },
+  {
+    "role": "user",
+    "content": "What technologies and capabilities make Gini strong?"
+  },
+  {
+    "role": "assistant",
+    "content": "Gini-Apps’ strengths lie in its comprehensive capabilities, including:\n\n*   **UX/UI Design:** Research-based, user-first systems\n*   **Mobile Development:** Native iOS/Android + cross-platform\n*   **Web Apps:** High-performance, responsive, scalable\n*   **Backend:** Microservices, cloud infra, serverless (AWS)\n*   **DevOps & CI/CD:** Automated and secure delivery\n*   **QA:** Manual + automated testing throughout\n*   **AI & Data:** Smart features powered by custom AI\n*   **SDKs and IoT apps**"
+  },
+  {
+    "role": "user",
+    "content": "What industries has Gini worked in?"
+  },
+  {
+    "role": "assistant",
+    "content": "Gini-Apps has worked in FinTech, HealthTech, Smart Cities, Education, Mobility, and Enterprise Solutions."
+  },
+  {
+    "role": "user",
+    "content": "Where is Gini-Apps based?"
+  },
+  {
+    "role": "assistant",
+    "content": "Gini-Apps is based at Arieh Shenkar 3, Herzliya, Israel."
+  },
+  {
+    "role": "user",
+    "content": "What types of products does Gini typically build?"
+  },
+  {
+    "role": "assistant",
+    "content": "Gini-Apps typically builds mobile apps, web apps, and SDKs and IoT apps."
+  },
+  {
+    "role": "user",
+    "content": "Can Gini provide a single developer for hire?"
+  },
+  {
+    "role": "assistant",
+    "content": "Yes, Gini-Apps provides expert developers and tech teams for hire. Clients can onboard vetted talent in mobile, web, QA, AI, and DevOps — either remotely or on-site."
+  }
+]

@@ -90,7 +90,7 @@ const SummaryPage = () => {
     };
 
     return (
-        <Page>
+        <Page className="items-start">
             <Box p={4}>
                 <Typography variant="h4" gutterBottom sx={{ fontWeight: 600 }}>
                     Summary Overview

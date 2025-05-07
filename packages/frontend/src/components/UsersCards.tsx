@@ -12,6 +12,7 @@ import margie from "../assets/margie.png";
 import muli from "../assets/muli.png";
 import nofar from "../assets/nofar.png";
 import adi from "../assets/adi.png";
+import {memo} from "react";
 
 const services = [
     {
@@ -160,4 +161,4 @@ export const TeamCards = () => {
     );
 };
 
-export default TeamCards;
+export default memo(TeamCards);

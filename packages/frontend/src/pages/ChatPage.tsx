@@ -30,13 +30,37 @@ const ChatPage = () => {
     const intervalRef = useRef<NodeJS.Timeout | number>(0);
     const controllerRef = useRef<AbortController | null>(null);
     const bottomRef = useRef<HTMLDivElement | null>(null);
-    console.log(messages)
+
     const username = localStorage.getItem('userName')
+
+    const requestChatSummary = async ()=>  {
+        try {
+            const response = await fetch('http://localhost:3020/create/summary', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ sessionId, username }),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || 'Failed to generate summary');
+            }
+
+            console.log('✅ Summary generated:', data.message);
+            return data;
+        } catch (error) {
+            console.error('❌ Error:', error);
+            return null;
+        }
+    }
 
     const sendMessage = async (option: string) => {
         if (!input.trim() && option.length === 0) return;
 
-        const userMessage = { user: input };
+        const userMessage = { user: input || option };
         setMessages((prev) => [...prev, userMessage]);
         setInput('');
         setIsTyping(true);
@@ -136,7 +160,7 @@ const ChatPage = () => {
                             'See Services list', 'Website Health Check', 'Project Flow', 'View Ai Template Projects'
                         ].map((suggestion, i) => (
                             <motion.button
-                                key={i}
+                                key={`suggestion-${i}`}
                                 initial={{ opacity: 0, scale: 0.95 }}
                                 animate={{ opacity: 1, scale: 1 }}
                                 transition={{ duration: 0.3, delay: i * 0.1 }}
@@ -172,10 +196,9 @@ const ChatPage = () => {
                     className="w-[600px] h-[600px] max-h-[75vh] flex flex-col rounded-[12px] bg-blue-100 overflow-hidden z-40 mr-[20px]"
                 >
                     <div style={{ backgroundImage: `url(${chatBackground})` }} className="relative flex-1 overflow-y-auto bg-no-repeat bg-contain bg-center">
-                        <div className="absolute inset-0 bg-green-100/20 z-0" />
                         <div className="relative z-10 px-4 space-y-2">
                             <AnimatePresence>
-                                {messages.map((m, i) => (
+                            {messages.map((m, i) => (
                                     <motion.div
                                         key={i}
                                         initial={{ opacity: 0, x: m.bot ? -50 : 50, scale: 0.95 }}
@@ -184,7 +207,7 @@ const ChatPage = () => {
                                         transition={{ duration: 0.3, ease: 'easeOut' }}
                                         className={`flex flex-col ${m.bot ? 'items-start' : 'items-end'} gap-2`}
                                     >
-                                        <div className="flex items-end gap-2">
+                                        <div className={`flex items-end ${m.bot ? 'justify-start' : 'justify-end'} gap-2`}>
                                             {m.bot && <img src={botAvatar} alt="Bot" className="w-[60px] h-[60px] rounded-full" />}
                                             <div
                                                 onClick={() => handleBotMessageClick(m, i)}
@@ -227,7 +250,7 @@ const ChatPage = () => {
                                                 <AnimatePresence>
                                                     {m.options?.map((option, j) => (
                                                         <motion.button
-                                                            key={j}
+                                                            key={`other-${j}`}
                                                             initial={{ opacity: 0, scale: 0.95, y: 10 }}
                                                             animate={{ opacity: 1, scale: 1, y: 0 }}
                                                             exit={{ opacity: 0, scale: 0.95, y: 10 }}
@@ -281,6 +304,11 @@ const ChatPage = () => {
                     </div>
 
                     <div className="px-6 py-4 bg-white flex items-center gap-3 shadow-inner">
+                        <button
+                            className="bg-blue-500 text-white px-6 py-2 text-sm font-medium rounded-full shadow-lg hover:shadow-xl transition-all duration-200 cursor-pointer"
+                            onClick={() => requestChatSummary()}>
+                            Summary
+                        </button>
                         <input
                             className="flex-1 border border-gray-200 rounded-2xl px-5 py-2 text-sm bg-gray-50 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
                             placeholder="Type a message..."
@@ -288,11 +316,11 @@ const ChatPage = () => {
                             onChange={(e) => setInput(e.target.value)}
                             onKeyDown={(e) => e.key === 'Enter' && sendMessage('')}
                         />
-                        <button className="bg-black text-white px-6 py-2 text-sm font-medium rounded-full shadow-lg hover:shadow-xl transition-all duration-200" onClick={() => sendMessage('')}>
+                        <button className="bg-black text-white px-6 py-2 text-sm font-medium rounded-full shadow-lg hover:shadow-xl transition-all duration-200 cursor-pointer" onClick={() => sendMessage('')}>
                             Send
                         </button>
                         {canStop && (
-                            <button className="text-sm text-gray-500 border border-gray-300 px-4 py-2 rounded-full hover:bg-gray-100 transition-all duration-200" onClick={stopResponse}>
+                            <button className="text-sm text-gray-500 border border-gray-300 px-4 py-2 rounded-full hover:bg-gray-100 transition-all duration-200 cursor-pointer" onClick={stopResponse}>
                                 Stop
                             </button>
                         )}

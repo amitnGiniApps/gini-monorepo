@@ -74,7 +74,7 @@ const Customers=()=> {
 
                 return (
                     <motion.div
-                        key={company.name}
+                        key={`${company.name}-${index}`}
                         custom={index}
                         initial="hidden"
                         animate={showCards ? "visible" : "hidden"}
