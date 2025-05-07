@@ -1,0 +1,90 @@
+[
+  {
+    "role": "user",
+    "content": "hi, i need you to builde me an app"
+  },
+  {
+    "role": "assistant",
+    "content": "Okay, let’s start building your app! To get us started, I need some information.\n\nFirst, what is the business use of the product? (e.g., what problem does it solve?)"
+  },
+  {
+    "role": "user",
+    "content": "its in the health business and it solves the wrong info cancer patients are getting"
+  },
+  {
+    "role": "assistant",
+    "content": "Okay, that’s a really important and impactful goal. So, the app will help combat misinformation regarding cancer patients – fantastic.\n\nNow, who are the target users for this product?"
+  },
+  {
+    "role": "user",
+    "content": "cancer patients and doctors"
+  },
+  {
+    "role": "assistant",
+    "content": "Got it – cancer patients and doctors. That gives us a really clear focus.\n\nNext, what are your delivery preferences? (e.g., MVP, full product, etc.)"
+  },
+  {
+    "role": "user",
+    "content": "full product"
+  },
+  {
+    "role": "assistant",
+    "content": "Okay, a full product – that’s a significant undertaking! To help me understand the scope, when do you plan to start the project? (timeline, if not mentioned already)"
+  },
+  {
+    "role": "user",
+    "content": "in 12 weeks"
+  },
+  {
+    "role": "assistant",
+    "content": "Twelve weeks – that’s a great timeframe to aim for. Let’s dig a little deeper. What is your goal for the product? (optional)"
+  },
+  {
+    "role": "user",
+    "content": "give cancer treatments the right info from the best doctors"
+  },
+  {
+    "role": "assistant",
+    "content": "Okay, so the ultimate goal is to provide cancer patients with the most accurate treatment information sourced from the best doctors.\n\nNow, let’s get some specifics. What is your full name?"
+  },
+  {
+    "role": "user",
+    "content": "pini shahmurov"
+  },
+  {
+    "role": "assistant",
+    "content": "Okay, Pini Shahmurov. And what is your email?"
+  },
+  {
+    "role": "user",
+    "content": "ShahmurovPini@gmail.com"
+  },
+  {
+    "role": "assistant",
+    "content": "Thank you, Pini. Now, company name?"
+  },
+  {
+    "role": "user",
+    "content": "Shahmurov Solutions"
+  },
+  {
+    "role": "assistant",
+    "content": "And company location?"
+  },
+  {
+    "role": "user",
+    "content": "Ariel, Israel"
+  },
+  {
+    "role": "assistant",
+    "content": "Finally, a phone number (optional)?"
+  },
+  {
+    "role": "user",
+    "content": "no"
+  },
+  {
+    "role": "assistant",
+    "content": "Okay, Pini Shahmurov of Shahmurov Solutions, located in Ariel, Israel. Thank you for the information. Let’s recap: We’re building an app to provide cancer patients with the right information from the best doctors. The goal is a full product.\n\nWould you like to speak with someone from our team to take the next step?"
+  }
+]
